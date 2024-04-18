@@ -4,6 +4,7 @@ import rootRouter from "./routes";
 import { PrismaClient } from "@prisma/client";
 import { errorMiddleware } from "./middlewares/errors";
 import { SignupSchema } from "./schema/user";
+import { CustomerBiodataCreateSchema } from "./schema/customer-biodata";
 
 dotenv.config();
 
@@ -19,6 +20,12 @@ export const prismaClient = new PrismaClient({
     user: {
       create({ args, query }) {
         args.data = SignupSchema.parse(args.data);
+        return query(args);
+      },
+    },
+    customerBiodata: {
+      create({ args, query }) {
+        args.data = CustomerBiodataCreateSchema.parse(args.data);
         return query(args);
       },
     },

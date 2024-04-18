@@ -14,12 +14,66 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  name       String
+  email      String   @unique
+  password   String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("users")
+}
+
+model Customer {
+  id String @id @default(uuid())
+
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+  customer_biodata_id String
+
+  customer_biodata CustomerBiodata @relation(fields: [customer_biodata_id], references: [id])
+
+  @@map("customers")
+}
+
+model CustomerBiodata {
+  id           String  @id @default(uuid())
+  first_name   String
+  last_name    String?
+  email        String
+  phone_number String
+  address      String
+
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  Customer   Customer[]
+
+  @@map("customer_biodatas")
+}
+
+model Country {
+  id        Int    @id
+  iso       String
+  name      String
+  slug      String
+  iso3      String
+  numcode   Int
+  phonecode Int
+  nicename  String
+
+  @@map("countries")
+}
+
+model VendorCategory {
+  id          Int    @id
+  name        String
+  status      String
+  slug        String
+  description String @db.Text
+  imageUrl    String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("vendor_categories")
 }

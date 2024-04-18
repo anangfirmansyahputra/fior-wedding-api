@@ -1,10 +1,8 @@
-import { NextFunction, Request, Response } from "express";
-import { prismaClient } from "..";
 import { compareSync, hashSync } from "bcrypt";
+import { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
+import { prismaClient } from "..";
 import { exclude } from "../lib/exclude";
-import { BadRequestsException } from "../exceptions/bad-request";
-import { ErrorCodes } from "../exceptions/root";
 import { SignupSchema } from "../schema/user";
 
 // Login
@@ -85,9 +83,10 @@ export const signup = async (req: Request, res: Response) => {
     });
 
     return res.status(201).json({
-      data: user,
+      data: exclude(user, ["password"]),
     });
   } catch (err: any) {
+    console.log(err);
     return res.status(422).json({
       errors: {
         message: err?.issues,
