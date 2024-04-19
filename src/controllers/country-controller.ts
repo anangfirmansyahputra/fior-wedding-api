@@ -4,10 +4,19 @@ import { Request, Response } from "express";
 import { prismaClient } from "..";
 
 export const getCountry = async (req: Request, res: Response) => {
-  const country = await prismaClient.country.findMany();
-  return res.status(200).json({
-    data: [...country],
-  });
+  try {
+    const countries = await prismaClient.country.findMany();
+    return res.status(200).json({
+      data: countries,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      errors: {
+        message: "Internal server error",
+      },
+    });
+  }
 };
 
 export const scrappingCountry = async (req: Request, res: Response) => {
@@ -47,14 +56,12 @@ export const scrappingCountry = async (req: Request, res: Response) => {
     }
 
     return res.status(200).json({
-      data: {
-        message: "Scrapping country success",
-      },
+      data: countries,
     });
   } catch (err: any) {
-    res.status(400).json({
+    res.status(500).json({
       errors: {
-        message: err?.message,
+        message: "Internal server error",
       },
     });
   }

@@ -32,12 +32,14 @@ export const scrappingVendorCategory = async (req: Request, res: Response) => {
     }
 
     return res.status(200).json({
-      data: {
-        message: "Scrapping vendor categories success",
-      },
+      data: vendorCategories,
     });
   } catch (err: any) {
-    console.log(err);
+    return res.status(500).json({
+      errors: {
+        message: "Internal server error",
+      },
+    });
   }
 };
 
@@ -49,7 +51,7 @@ export const getVendorCategory = async (req: Request, res: Response) => {
       data: vendorCategories,
     });
   } catch (err: any) {
-    return res.status(400).json({
+    return res.status(500).json({
       errors: {
         message: "Internal server error",
       },

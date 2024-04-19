@@ -3,8 +3,8 @@ import dotenv from "dotenv";
 import rootRouter from "./routes";
 import { PrismaClient } from "@prisma/client";
 import { errorMiddleware } from "./middlewares/errors";
-import { SignupSchema } from "./schema/user";
-import { CustomerBiodataCreateSchema } from "./schema/customer-biodata";
+import { signupSchema } from "./schema/user";
+import { customerBiodataCreateSchema } from "./schema/customer-biodata";
 
 dotenv.config();
 
@@ -19,13 +19,13 @@ export const prismaClient = new PrismaClient({
   query: {
     user: {
       create({ args, query }) {
-        args.data = SignupSchema.parse(args.data);
+        args.data = signupSchema.parse(args.data);
         return query(args);
       },
     },
     customerBiodata: {
       create({ args, query }) {
-        args.data = CustomerBiodataCreateSchema.parse(args.data);
+        args.data = customerBiodataCreateSchema.parse(args.data);
         return query(args);
       },
     },

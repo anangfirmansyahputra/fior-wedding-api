@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const CustomerBiodataCreateSchema = z.object({
+export const customerBiodataCreateSchema = z.object({
   first_name: z.string(),
   last_name: z.string().nullable(),
   email: z.string().email(),

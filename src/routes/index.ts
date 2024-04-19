@@ -8,7 +8,7 @@ import { vendorRouter } from "./vendor-routes";
 const rootRouter: Router = Router();
 
 rootRouter.use("/auth", authRouter);
-rootRouter.use("/customer-biodata", customerBiodataRouter);
+rootRouter.use("/customer-biodatas", customerBiodataRouter);
 rootRouter.use("/countries", countryRouter);
 rootRouter.use("/vendor-categories", vendorCategoryRouter);
 rootRouter.use("/vendors", vendorRouter);

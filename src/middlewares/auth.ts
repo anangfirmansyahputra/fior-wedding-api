@@ -22,6 +22,7 @@ const authMiddleware = async (
     const user = await prismaClient.user.findFirst({
       where: {
         id: payload.id,
+        token,
       },
     });
 

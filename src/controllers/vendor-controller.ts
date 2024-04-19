@@ -56,14 +56,36 @@ export const getVendors = async (req: Request, res: Response) => {
   try {
     const page = Number(req.query.page) || 1;
     const pageSize = Number(req.query.pageSize) || 10;
+    const name = (req.query.name as string) || "";
+    const country = (req.query.country as string) || "";
+    const category = (req.query.category as string) || "";
 
     const offset = (page - 1) * pageSize;
-    const vendor = await prismaClient.vendor.findMany({
+    const whereClause = {} as any;
+
+    if (country) {
+      whereClause.country = country;
+    }
+
+    if (category) {
+      whereClause.category = category;
+    }
+
+    if (name) {
+      whereClause.name = {
+        contains: name,
+      };
+    }
+
+    const vendors = await prismaClient.vendor.findMany({
       skip: offset,
       take: pageSize,
+      where: whereClause,
     });
 
-    const totalCount = await prismaClient.vendor.count();
+    const totalCount = await prismaClient.vendor.count({
+      where: whereClause,
+    });
     const hasNextPage = page * pageSize < totalCount;
     const hasPreviousPage = page > 1;
 
@@ -78,12 +100,12 @@ export const getVendors = async (req: Request, res: Response) => {
     }
 
     return res.status(200).json({
-      data: {
-        vendors: vendor,
-        page_info: {
-          next_page: nextPage,
-          previous_page: vendor.length === 0 ? null : previousPage,
-        },
+      data: vendors,
+      page_info: {
+        next_page: vendors.length === 0 ? null : nextPage,
+        previous_page: vendors.length === 0 ? null : previousPage,
+        current_page: page,
+        total: totalCount,
       },
     });
   } catch (err: any) {
