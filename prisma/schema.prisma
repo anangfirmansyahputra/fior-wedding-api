@@ -77,3 +77,15 @@ model VendorCategory {
 
   @@map("vendor_categories")
 }
+
+model Vendor {
+  id         Int      @id
+  data       Json
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  name       String
+  category   String
+  country    String
+
+  @@map("vendors")
+}
