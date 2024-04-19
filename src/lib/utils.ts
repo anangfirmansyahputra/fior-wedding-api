@@ -19,7 +19,10 @@ export function createPagination(
   }
 
   return {
-    offset,
     limit: pageSize,
+    next_page: nextPage,
+    previous_age: previousPage,
+    current_page: page,
+    total: totalCount,
   };
 }

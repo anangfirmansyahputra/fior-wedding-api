@@ -165,13 +165,14 @@ export const refreshToken = async (req: Request, res: Response) => {
     const user = await prismaClient.user.findFirst({
       where: {
         id: decoded.id,
+        refresh_token,
       },
     });
 
     if (!user) {
-      return res.status(404).json({
+      return res.status(401).json({
         errors: {
-          message: "User not found",
+          message: "Invalid refresh token",
         },
       });
     }
@@ -182,24 +183,32 @@ export const refreshToken = async (req: Request, res: Response) => {
       { expiresIn: "6h" }
     );
 
+    const newRefreshToken = jwt.sign(
+      { id: user.id },
+      process.env.JWT_REFRESH_SECRET_KEY!,
+      { expiresIn: "6h" }
+    );
+
     await prismaClient.user.update({
       where: {
         id: decoded.id,
       },
       data: {
         access_token: newToken,
+        refresh_token: newRefreshToken,
       },
     });
 
     return res.status(200).json({
       data: {
         access_token: newToken,
+        refresh_token: newRefreshToken,
       },
     });
   } catch (err) {
-    return res.status(401).json({
+    return res.status(500).json({
       errors: {
-        message: "Invalid refresh token",
+        message: "Internal server error",
       },
     });
   }

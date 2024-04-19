@@ -12,7 +12,7 @@ const authMiddleware = async (
   if (!access_token) {
     return res.status(401).json({
       errors: {
-        message: "unauthorized",
+        message: "Unauthorized",
       },
     });
   }
@@ -33,7 +33,7 @@ const authMiddleware = async (
     if (!user) {
       return res.status(401).json({
         errors: {
-          message: "unauthorized",
+          message: "Unauthorized",
         },
       });
     }
@@ -44,7 +44,7 @@ const authMiddleware = async (
   } catch (err) {
     return res.status(401).json({
       errors: {
-        message: "unauthorized",
+        message: "Unauthorized",
       },
     });
   }

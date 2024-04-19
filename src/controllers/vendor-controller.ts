@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Request, Response } from "express";
 import { prismaClient } from "..";
+import { createPagination } from "../lib/utils";
 
 export const scrappingVendor = async (req: Request, res: Response) => {
   try {
@@ -29,14 +30,14 @@ export const scrappingVendor = async (req: Request, res: Response) => {
             data: vendor,
             name: vendor.name,
             category: vendor.category.slug,
-            city: vendor.category.slug,
+            city: vendor.city.slug,
           },
           create: {
             id: vendor.id,
             data: vendor,
             name: vendor.name,
             category: vendor.category.slug,
-            city: vendor.category.slug,
+            city: vendor.city.slug,
           },
         });
       }
@@ -91,26 +92,32 @@ export const getVendors = async (req: Request, res: Response) => {
     const totalCount = await prismaClient.vendor.count({
       where: whereClause,
     });
-    const hasNextPage = page * pageSize < totalCount;
-    const hasPreviousPage = page > 1;
+    // const hasNextPage = page * pageSize < totalCount;
+    // const hasPreviousPage = page > 1;
 
-    let nextPage = null;
-    if (hasNextPage) {
-      nextPage = page + 1;
-    }
+    // let nextPage = null;
+    // if (hasNextPage) {
+    //   nextPage = page + 1;
+    // }
 
-    let previousPage = null;
-    if (hasPreviousPage) {
-      previousPage = page - 1;
-    }
+    // let previousPage = null;
+    // if (hasPreviousPage) {
+    //   previousPage = page - 1;
+    // }
+
+    const { next_page, previous_age, current_page, total } = createPagination(
+      page,
+      pageSize,
+      totalCount
+    );
 
     return res.status(200).json({
       data: vendors,
       page_info: {
-        next_page: vendors.length === 0 ? null : nextPage,
-        previous_page: vendors.length === 0 ? null : previousPage,
-        current_page: page,
-        total: totalCount,
+        next_page: vendors.length === 0 ? null : next_page,
+        previous_page: vendors.length === 0 ? null : previous_age,
+        current_page,
+        total,
       },
     });
   } catch (err: any) {
