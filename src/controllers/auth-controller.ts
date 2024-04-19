@@ -3,7 +3,12 @@ import { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
 import { prismaClient } from "..";
 import { exclude } from "../lib/exclude";
-import { loginSchema, refreshTokenSchema, signupSchema } from "../schema/user";
+import {
+  loginSchema,
+  refreshTokenSchema,
+  signupSchema,
+  updateUserSchema,
+} from "../schema/user";
 
 // Login
 export const login = async (req: Request, res: Response) => {
@@ -223,4 +228,49 @@ export const me = async (req: Request, res: Response, next: NextFunction) => {
       ...exclude(req.user, ["password", "refresh_token", "access_token"]),
     },
   });
+};
+
+// Update
+export const update = async (req: Request, res: Response) => {
+  try {
+    updateUserSchema.parse(req.body);
+  } catch (err: any) {
+    return res.status(400).json({
+      errors: {
+        message: err?.issues,
+      },
+    });
+  }
+
+  try {
+    const { name, password } = req.body;
+
+    const data = {} as any;
+
+    if (name) {
+      data.name = name;
+    }
+
+    if (password) {
+      data.password = hashSync(password, 10);
+    }
+
+    const user = await prismaClient.user.update({
+      where: {
+        // @ts-ignore
+        id: req.user.id,
+      },
+      data,
+    });
+
+    return res.status(200).json({
+      data: exclude(user, ["password", "access_token", "refresh_token"]),
+    });
+  } catch (err) {
+    return res.status(500).json({
+      errors: {
+        message: "Internal server error",
+      },
+    });
+  }
 };

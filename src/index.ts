@@ -1,10 +1,8 @@
-import express, { Request, Response } from "express";
-import dotenv from "dotenv";
-import rootRouter from "./routes";
 import { PrismaClient } from "@prisma/client";
-import { errorMiddleware } from "./middlewares/errors";
+import dotenv from "dotenv";
+import express from "express";
+import rootRouter from "./routes";
 import { signupSchema } from "./schema/user";
-import { customerBiodataCreateSchema } from "./schema/customer-biodata";
 
 dotenv.config();
 
