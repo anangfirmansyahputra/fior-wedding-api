@@ -21,7 +21,8 @@ model User {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  token String? @db.Text
+  access_token  String? @db.Text
+  refresh_token String? @db.Text
 
   @@map("users")
 }
@@ -29,11 +30,10 @@ model User {
 model Customer {
   id String @id @default(uuid())
 
-  created_at          DateTime @default(now())
-  updated_at          DateTime @updatedAt
+  created_at          DateTime          @default(now())
+  updated_at          DateTime          @updatedAt
   customer_biodata_id String
-
-  customer_biodata CustomerBiodata @relation(fields: [customer_biodata_id], references: [id])
+  CustomerBiodata     CustomerBiodata[]
 
   @@map("customers")
 }
@@ -46,24 +46,13 @@ model CustomerBiodata {
   phone_number String
   address      String
 
-  created_at DateTime   @default(now())
-  updated_at DateTime   @updatedAt
-  Customer   Customer[]
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  customer_id String
+
+  customer Customer @relation(fields: [customer_id], references: [id])
 
   @@map("customer_biodatas")
-}
-
-model Country {
-  id        Int    @id
-  iso       String
-  name      String
-  slug      String
-  iso3      String
-  numcode   Int
-  phonecode Int
-  nicename  String
-
-  @@map("countries")
 }
 
 model VendorCategory {
@@ -87,7 +76,19 @@ model Vendor {
   updated_at DateTime @updatedAt
   name       String
   category   String
-  country    String
+  city       String
 
   @@map("vendors")
+}
+
+model Cities {
+  id         Int    @id
+  country_id Int
+  name       String
+  slug       String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("cities")
 }

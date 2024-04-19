@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
 import { prismaClient } from "..";
 import { exclude } from "../lib/exclude";
-import { loginSchema, signupSchema } from "../schema/user";
+import { loginSchema, refreshTokenSchema, signupSchema } from "../schema/user";
 
 // Login
 export const login = async (req: Request, res: Response) => {
@@ -41,11 +41,20 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    const token = jwt.sign(
+    const access_token = jwt.sign(
       {
-        userId: user.id,
+        id: user.id,
       },
-      process.env.JWT_SECRET_KEY!
+      process.env.JWT_ACCESS_SECRET_KEY!,
+      { expiresIn: "6h" }
+    );
+
+    const refresh_token = jwt.sign(
+      {
+        id: user.id,
+      },
+      process.env.JWT_REFRESH_SECRET_KEY!,
+      { expiresIn: "1d" }
     );
 
     await prismaClient.user.update({
@@ -53,14 +62,16 @@ export const login = async (req: Request, res: Response) => {
         id: user.id,
       },
       data: {
-        token,
+        access_token,
+        refresh_token,
       },
     });
 
     return res.status(200).json({
       data: {
         ...exclude(user, ["password"]),
-        token,
+        access_token,
+        refresh_token,
       },
     });
   } catch (err) {
@@ -131,8 +142,76 @@ export const signup = async (req: Request, res: Response) => {
   }
 };
 
+// Refresh Token
+export const refreshToken = async (req: Request, res: Response) => {
+  try {
+    refreshTokenSchema.parse(req.body);
+  } catch (err: any) {
+    return res.status(400).json({
+      errors: {
+        message: err?.issues,
+      },
+    });
+  }
+
+  try {
+    const { refresh_token } = req.body;
+
+    const decoded: any = jwt.verify(
+      refresh_token,
+      process.env.JWT_REFRESH_SECRET_KEY!
+    );
+
+    const user = await prismaClient.user.findFirst({
+      where: {
+        id: decoded.id,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        errors: {
+          message: "User not found",
+        },
+      });
+    }
+
+    const newToken = jwt.sign(
+      { id: user.id },
+      process.env.JWT_ACCESS_SECRET_KEY!,
+      { expiresIn: "6h" }
+    );
+
+    await prismaClient.user.update({
+      where: {
+        id: decoded.id,
+      },
+      data: {
+        access_token: newToken,
+      },
+    });
+
+    return res.status(200).json({
+      data: {
+        access_token: newToken,
+      },
+    });
+  } catch (err) {
+    return res.status(401).json({
+      errors: {
+        message: "Invalid refresh token",
+      },
+    });
+  }
+};
+
 // Me
 export const me = async (req: Request, res: Response, next: NextFunction) => {
   // @ts-ignore
-  res.json(req.user);
+  res.status(200).json({
+    data: {
+      // @ts-ignore
+      ...exclude(req.user, ["password", "refresh_token", "access_token"]),
+    },
+  });
 };

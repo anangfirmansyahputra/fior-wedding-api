@@ -7,9 +7,9 @@ const authMiddleware = async (
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.headers.authorization;
+  const access_token = req.headers.authorization;
 
-  if (!token) {
+  if (!access_token) {
     return res.status(401).json({
       errors: {
         message: "unauthorized",
@@ -18,11 +18,15 @@ const authMiddleware = async (
   }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET_KEY!) as any;
+    const payload = jwt.verify(
+      access_token,
+      process.env.JWT_ACCESS_SECRET_KEY!
+    ) as any;
+
     const user = await prismaClient.user.findFirst({
       where: {
         id: payload.id,
-        token,
+        access_token,
       },
     });
 

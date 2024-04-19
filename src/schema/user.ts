@@ -10,3 +10,7 @@ export const loginSchema = z.object({
   username: z.string().min(6),
   password: z.string().min(6),
 });
+
+export const refreshTokenSchema = z.object({
+  refresh_token: z.string(),
+});

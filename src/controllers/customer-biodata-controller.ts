@@ -16,7 +16,8 @@ export const create = async (req: Request, res: Response) => {
   }
 
   try {
-    const { first_name, last_name, email, phone_number, address } = req.body;
+    const { first_name, last_name, email, phone_number, address, customer_id } =
+      req.body;
 
     const customerBiodata = await prismaClient.customerBiodata.create({
       data: {
@@ -25,6 +26,7 @@ export const create = async (req: Request, res: Response) => {
         email,
         phone_number,
         address,
+        customer_id,
       },
     });
 

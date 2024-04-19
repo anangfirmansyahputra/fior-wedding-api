@@ -6,6 +6,7 @@ CREATE TABLE `users` (
     `password` VARCHAR(191) NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
+    `token` TEXT NULL,
 
     UNIQUE INDEX `users_username_key`(`username`),
     PRIMARY KEY (`id`)
@@ -31,20 +32,7 @@ CREATE TABLE `customer_biodatas` (
     `address` VARCHAR(191) NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `countries` (
-    `id` INTEGER NOT NULL,
-    `iso` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
-    `slug` VARCHAR(191) NOT NULL,
-    `iso3` VARCHAR(191) NOT NULL,
-    `numcode` INTEGER NOT NULL,
-    `phonecode` INTEGER NOT NULL,
-    `nicename` VARCHAR(191) NOT NULL,
+    `customer_id` VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -71,10 +59,10 @@ CREATE TABLE `vendors` (
     `updated_at` DATETIME(3) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `category` VARCHAR(191) NOT NULL,
-    `country` VARCHAR(191) NOT NULL,
+    `city` VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `customers` ADD CONSTRAINT `customers_customer_biodata_id_fkey` FOREIGN KEY (`customer_biodata_id`) REFERENCES `customer_biodatas`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `customer_biodatas` ADD CONSTRAINT `customer_biodatas_customer_id_fkey` FOREIGN KEY (`customer_id`) REFERENCES `customers`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

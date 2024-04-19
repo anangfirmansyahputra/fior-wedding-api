@@ -9,8 +9,8 @@ export const scrappingVendor = async (req: Request, res: Response) => {
 
     do {
       const url: string = next
-        ? `https://secure-cdn-api.bridestory.com/ms/feeds/api/v1/vendors?next=${next}&is_mobile=false&ads=true&bs-localization-bucket=ID&bs-translation-bucket=id`
-        : `https://secure-cdn-api.bridestory.com/ms/feeds/api/v1/vendors?is_mobile=false&ads=true&bs-localization-bucket=ID&bs-translation-bucket=id`;
+        ? `https://secure-cdn-api.bridestory.com/ms/feeds/api/v1/vendors?country=ID&next=${next}&is_mobile=false&ads=true&bs-localization-bucket=ID&bs-translation-bucket=id`
+        : `https://secure-cdn-api.bridestory.com/ms/feeds/api/v1/vendors?country=ID&is_mobile=false&ads=true&bs-localization-bucket=ID&bs-translation-bucket=id`;
 
       console.log(next);
 
@@ -29,14 +29,14 @@ export const scrappingVendor = async (req: Request, res: Response) => {
             data: vendor,
             name: vendor.name,
             category: vendor.category.slug,
-            country: vendor.country.iso,
+            city: vendor.category.slug,
           },
           create: {
             id: vendor.id,
             data: vendor,
             name: vendor.name,
             category: vendor.category.slug,
-            country: vendor.country.iso,
+            city: vendor.category.slug,
           },
         });
       }
@@ -57,18 +57,23 @@ export const getVendors = async (req: Request, res: Response) => {
     const page = Number(req.query.page) || 1;
     const pageSize = Number(req.query.pageSize) || 10;
     const name = (req.query.name as string) || "";
-    const country = (req.query.country as string) || "";
+    // const country = (req.query.country as string) || "";
     const category = (req.query.category as string) || "";
+    const city = (req.query.city as string) || "";
 
     const offset = (page - 1) * pageSize;
     const whereClause = {} as any;
 
-    if (country) {
-      whereClause.country = country;
-    }
+    // if (country) {
+    //   whereClause.country = country;
+    // }
 
     if (category) {
       whereClause.category = category;
+    }
+
+    if (city) {
+      whereClause.city = city;
     }
 
     if (name) {

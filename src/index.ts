@@ -23,12 +23,6 @@ export const prismaClient = new PrismaClient({
         return query(args);
       },
     },
-    customerBiodata: {
-      create({ args, query }) {
-        args.data = customerBiodataCreateSchema.parse(args.data);
-        return query(args);
-      },
-    },
   },
 });
 
