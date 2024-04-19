@@ -177,7 +177,9 @@ export const deleteCustomer = async (req: Request, res: Response) => {
       },
     });
 
-    return res.status(204);
+    return res.status(204).json({
+      data: {},
+    });
   } catch (err) {
     return res.status(500).json({
       errors: {
