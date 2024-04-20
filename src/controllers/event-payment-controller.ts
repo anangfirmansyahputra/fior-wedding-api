@@ -157,6 +157,8 @@ export const deleteEventPayment = async (req: Request, res: Response) => {
         id: req.params.id,
       },
     });
+
+    return res.status(204).json({});
   } catch (err) {
     return res.status(500).json({
       errors: {

@@ -49,13 +49,11 @@ export const get = async (req: Request, res: Response) => {
     const events = await prismaClient.event.findMany({
       include: {
         event_vendor: {
-          select: {
-            id: true,
-            created_at: true,
-            updated_at: true,
+          include: {
             vendor: true,
           },
         },
+        event_payment: true,
       },
     });
 
