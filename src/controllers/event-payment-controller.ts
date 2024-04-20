@@ -7,16 +7,6 @@ import { prismaClient } from "..";
 
 export const create = async (req: Request, res: Response) => {
   try {
-    eventPaymentCreateSchema.parse(req.body);
-  } catch (err: any) {
-    return res.status(400).json({
-      errors: {
-        message: err?.issues,
-      },
-    });
-  }
-
-  try {
     const event = await prismaClient.event.findFirst({
       where: {
         id: req.body.event_id,
@@ -31,8 +21,21 @@ export const create = async (req: Request, res: Response) => {
       });
     }
 
+    eventPaymentCreateSchema.parse(req.body);
+  } catch (err: any) {
+    return res.status(400).json({
+      errors: {
+        message: err?.issues,
+      },
+    });
+  }
+
+  try {
     const eventPayment = await prismaClient.eventPayment.create({
-      data: req.body,
+      data: {
+        event_id: req.params.event_id,
+        ...req.body,
+      },
     });
 
     return res.status(201).json({
@@ -49,7 +52,25 @@ export const create = async (req: Request, res: Response) => {
 
 export const get = async (req: Request, res: Response) => {
   try {
-    const eventPayments = await prismaClient.eventPayment.findMany({});
+    const event = await prismaClient.event.findFirst({
+      where: {
+        id: req.body.event_id,
+      },
+    });
+
+    if (!event) {
+      return res.status(404).json({
+        errors: {
+          message: "Event not found",
+        },
+      });
+    }
+
+    const eventPayments = await prismaClient.eventPayment.findMany({
+      where: {
+        event_id: req.params.event_id,
+      },
+    });
 
     return res.status(200).json({
       data: eventPayments,
@@ -65,9 +86,24 @@ export const get = async (req: Request, res: Response) => {
 
 export const find = async (req: Request, res: Response) => {
   try {
+    const event = await prismaClient.event.findFirst({
+      where: {
+        id: req.body.event_id,
+      },
+    });
+
+    if (!event) {
+      return res.status(404).json({
+        errors: {
+          message: "Event not found",
+        },
+      });
+    }
+
     const eventPayment = await prismaClient.eventPayment.findFirst({
       where: {
         id: req.params.id,
+        event_id: req.params.event_id,
       },
     });
 
@@ -93,6 +129,20 @@ export const find = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   try {
+    const event = await prismaClient.event.findFirst({
+      where: {
+        id: req.body.event_id,
+      },
+    });
+
+    if (!event) {
+      return res.status(404).json({
+        errors: {
+          message: "Event not found",
+        },
+      });
+    }
+
     eventPaymentUpdateSchema.parse(req.body);
   } catch (err: any) {
     return res.status(400).json({
@@ -106,6 +156,7 @@ export const update = async (req: Request, res: Response) => {
     const findEventPayment = await prismaClient.eventPayment.findFirst({
       where: {
         id: req.params.id,
+        event_id: req.params.event_id,
       },
     });
 
@@ -117,11 +168,13 @@ export const update = async (req: Request, res: Response) => {
       });
     }
 
+    const { event_id, ...payload } = req.body;
+
     const eventPayment = await prismaClient.eventPayment.update({
       where: {
         id: req.params.id,
       },
-      data: req.body,
+      data: payload,
     });
 
     return res.status(200).json({
@@ -138,6 +191,20 @@ export const update = async (req: Request, res: Response) => {
 
 export const deleteEventPayment = async (req: Request, res: Response) => {
   try {
+    const event = await prismaClient.event.findFirst({
+      where: {
+        id: req.body.event_id,
+      },
+    });
+
+    if (!event) {
+      return res.status(404).json({
+        errors: {
+          message: "Event not found",
+        },
+      });
+    }
+
     const eventPayment = await prismaClient.eventPayment.findFirst({
       where: {
         id: req.params.id,
@@ -155,6 +222,7 @@ export const deleteEventPayment = async (req: Request, res: Response) => {
     await prismaClient.eventPayment.delete({
       where: {
         id: req.params.id,
+        event_id: req.params.event_id,
       },
     });
 

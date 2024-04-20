@@ -9,10 +9,10 @@ import {
 
 const customerBiodataRouter = Router();
 
-customerBiodataRouter.post("/", create);
-customerBiodataRouter.get("/", gets);
-customerBiodataRouter.get("/:id", find);
-customerBiodataRouter.patch("/:id", update);
-customerBiodataRouter.delete("/:id", deleteCustomer);
+customerBiodataRouter.post("/:customer_id/biodatas", create);
+customerBiodataRouter.get("/:customer_id/biodatas", gets);
+customerBiodataRouter.get("/:customer_id/biodatas/:id", find);
+customerBiodataRouter.patch("/:customer_id/biodatas/:id", update);
+customerBiodataRouter.delete("/:customer_id/biodatas/:id", deleteCustomer);
 
 export default customerBiodataRouter;

@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const eventPaymentCreateSchema = z.object({
-  event_id: z.string(),
   amount: z.number(),
   payment_method: z.enum(["CREDIT_CARD", "BANK_TRANSFER", "CASH"]),
   payment_status: z.enum(["PENDING", "COMPLETED", "FAILED"]),

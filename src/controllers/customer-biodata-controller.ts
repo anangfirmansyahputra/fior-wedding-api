@@ -8,20 +8,9 @@ import {
 // Create
 export const create = async (req: Request, res: Response) => {
   try {
-    customerBiodataCreateSchema.parse(req.body);
-  } catch (err: any) {
-    console.log(err);
-    return res.status(400).json({
-      errors: err?.issues,
-    });
-  }
-
-  try {
-    const { customer_id } = req.body;
-
-    const customer = await prismaClient.customer.findUnique({
+    const customer = await prismaClient.customer.findFirst({
       where: {
-        id: customer_id,
+        id: req.params.customer_id,
       },
     });
 
@@ -33,8 +22,20 @@ export const create = async (req: Request, res: Response) => {
       });
     }
 
+    customerBiodataCreateSchema.parse(req.body);
+  } catch (err: any) {
+    console.log(err);
+    return res.status(400).json({
+      errors: err?.issues,
+    });
+  }
+
+  try {
     const customerBiodata = await prismaClient.customerBiodata.create({
-      data: req.body,
+      data: {
+        customer_id: req.params.customer_id,
+        ...req.body,
+      },
     });
 
     return res.status(201).json({
@@ -52,7 +53,25 @@ export const create = async (req: Request, res: Response) => {
 // Get
 export const gets = async (req: Request, res: Response) => {
   try {
-    const customerBiodatas = await prismaClient.customerBiodata.findMany();
+    const customer = await prismaClient.customer.findFirst({
+      where: {
+        id: req.params.customer_id,
+      },
+    });
+
+    if (!customer) {
+      return res.status(404).json({
+        errors: {
+          message: "Customer not found",
+        },
+      });
+    }
+
+    const customerBiodatas = await prismaClient.customerBiodata.findMany({
+      where: {
+        customer_id: req.params.customer_id,
+      },
+    });
 
     return res.status(200).json({
       data: customerBiodatas,
@@ -70,9 +89,24 @@ export const gets = async (req: Request, res: Response) => {
 // Find
 export const find = async (req: Request, res: Response) => {
   try {
+    const customer = await prismaClient.customer.findFirst({
+      where: {
+        id: req.params.customer_id,
+      },
+    });
+
+    if (!customer) {
+      return res.status(404).json({
+        errors: {
+          message: "Customer not found",
+        },
+      });
+    }
+
     const customerBiodata = await prismaClient.customerBiodata.findFirst({
       where: {
         id: req.params.id,
+        customer_id: req.params.customer_id,
       },
     });
 
@@ -99,6 +133,20 @@ export const find = async (req: Request, res: Response) => {
 // Update
 export const update = async (req: Request, res: Response) => {
   try {
+    const customer = await prismaClient.customer.findFirst({
+      where: {
+        id: req.params.customer_id,
+      },
+    });
+
+    if (!customer) {
+      return res.status(404).json({
+        errors: {
+          message: "Customer not found",
+        },
+      });
+    }
+
     customerBiodataUpdateSchema.parse(req.body);
   } catch (err: any) {
     return res.status(400).json({
@@ -110,6 +158,7 @@ export const update = async (req: Request, res: Response) => {
     const customerBiodata = await prismaClient.customerBiodata.findFirst({
       where: {
         id: req.params.id,
+        customer_id: req.params.customer_id,
       },
     });
 
@@ -126,6 +175,7 @@ export const update = async (req: Request, res: Response) => {
     const updateCustomerBiodata = await prismaClient.customerBiodata.update({
       where: {
         id: req.params.id,
+        customer_id: req.params.customer_id,
       },
       data: payload,
     });
@@ -145,9 +195,24 @@ export const update = async (req: Request, res: Response) => {
 // Delete
 export const deleteCustomer = async (req: Request, res: Response) => {
   try {
+    const customer = await prismaClient.customer.findFirst({
+      where: {
+        id: req.params.customer_id,
+      },
+    });
+
+    if (!customer) {
+      return res.status(404).json({
+        errors: {
+          message: "Customer not found",
+        },
+      });
+    }
+
     const customerBiodata = await prismaClient.customerBiodata.findFirst({
       where: {
         id: req.params.id,
+        customer_id: req.params.customer_id,
       },
     });
 
@@ -162,6 +227,7 @@ export const deleteCustomer = async (req: Request, res: Response) => {
     await prismaClient.customerBiodata.delete({
       where: {
         id: req.params.id,
+        customer_id: req.params.customer_id,
       },
     });
 

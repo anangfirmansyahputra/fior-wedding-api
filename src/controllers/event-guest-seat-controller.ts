@@ -7,6 +7,20 @@ import { prismaClient } from "..";
 
 export const create = async (req: Request, res: Response) => {
   try {
+    const event = await prismaClient.event.findFirst({
+      where: {
+        id: req.body.event_id,
+      },
+    });
+
+    if (!event) {
+      return res.status(404).json({
+        errors: {
+          message: "Event not found",
+        },
+      });
+    }
+
     eventGuestSeatCreateSchema.parse(req.body);
   } catch (err: any) {
     return res.status(400).json({
@@ -17,22 +31,11 @@ export const create = async (req: Request, res: Response) => {
   }
 
   try {
-    const event = await prismaClient.event.findFirst({
-      where: {
-        id: req.body.event_id,
-      },
-    });
-
-    if (!event) {
-      return res.status(400).json({
-        errors: {
-          message: "Event not found",
-        },
-      });
-    }
-
     const eventGuestSeat = await prismaClient.eventGuestSeat.create({
-      data: req.body,
+      data: {
+        event_id: req.params.event_id,
+        ...req.body,
+      },
     });
 
     return res.status(201).json({
@@ -49,7 +52,25 @@ export const create = async (req: Request, res: Response) => {
 
 export const get = async (req: Request, res: Response) => {
   try {
-    const eventGuestSeats = await prismaClient.eventGuestSeat.findMany({});
+    const event = await prismaClient.event.findFirst({
+      where: {
+        id: req.body.event_id,
+      },
+    });
+
+    if (!event) {
+      return res.status(404).json({
+        errors: {
+          message: "Event not found",
+        },
+      });
+    }
+
+    const eventGuestSeats = await prismaClient.eventGuestSeat.findMany({
+      where: {
+        event_id: req.params.event_id,
+      },
+    });
 
     return res.status(200).json({
       data: eventGuestSeats,
@@ -65,9 +86,24 @@ export const get = async (req: Request, res: Response) => {
 
 export const find = async (req: Request, res: Response) => {
   try {
+    const event = await prismaClient.event.findFirst({
+      where: {
+        id: req.body.event_id,
+      },
+    });
+
+    if (!event) {
+      return res.status(404).json({
+        errors: {
+          message: "Event not found",
+        },
+      });
+    }
+
     const eventGuestSeat = await prismaClient.eventGuestSeat.findFirst({
       where: {
         id: req.params.id,
+        event_id: req.params.event_id,
       },
     });
 
@@ -93,6 +129,20 @@ export const find = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   try {
+    const event = await prismaClient.event.findFirst({
+      where: {
+        id: req.body.event_id,
+      },
+    });
+
+    if (!event) {
+      return res.status(404).json({
+        errors: {
+          message: "Event not found",
+        },
+      });
+    }
+
     eventGuestSeatUpdateSchema.parse(req.body);
   } catch (err: any) {
     return res.status(400).json({
@@ -106,6 +156,7 @@ export const update = async (req: Request, res: Response) => {
     const findData = await prismaClient.eventGuestSeat.findFirst({
       where: {
         id: req.params.id,
+        event_id: req.params.event_id,
       },
     });
 
@@ -117,11 +168,14 @@ export const update = async (req: Request, res: Response) => {
       });
     }
 
+    const { event_id, ...payload } = req.body;
+
     const updateData = await prismaClient.eventGuestSeat.update({
       where: {
         id: req.params.id,
+        event_id: req.params.event_id,
       },
-      data: req.body,
+      data: payload,
     });
 
     return res.status(200).json({
@@ -138,9 +192,24 @@ export const update = async (req: Request, res: Response) => {
 
 export const remove = async (req: Request, res: Response) => {
   try {
+    const event = await prismaClient.event.findFirst({
+      where: {
+        id: req.body.event_id,
+      },
+    });
+
+    if (!event) {
+      return res.status(404).json({
+        errors: {
+          message: "Event not found",
+        },
+      });
+    }
+
     const findData = await prismaClient.eventGuestSeat.findFirst({
       where: {
         id: req.params.id,
+        event_id: req.params.event_id,
       },
     });
 

@@ -8,7 +8,7 @@ import {
 
 export const eventVendorRouter: Router = Router();
 
-eventVendorRouter.get("/", get);
-eventVendorRouter.get("/:id", find);
-eventVendorRouter.post("/", create);
-eventVendorRouter.delete("/:id", deleteEventVendor);
+eventVendorRouter.get("/:event_id/vendors", get);
+eventVendorRouter.get("/:event_id/vendors/:id", find);
+eventVendorRouter.post("/:event_id/vendors/", create);
+eventVendorRouter.delete("/:event_id/vendors/:id", deleteEventVendor);

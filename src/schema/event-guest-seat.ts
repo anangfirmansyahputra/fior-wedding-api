@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const eventGuestSeatCreateSchema = z.object({
-  event_id: z.string(),
   guest_name: z.string().min(3),
   seat_category: z.enum(["VIP", "REGULAR", "SPECIAL"]),
   seat_number: z.optional(z.string()),
