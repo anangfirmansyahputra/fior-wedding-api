@@ -30,9 +30,9 @@ model User {
 model Customer {
   id String @id @default(uuid())
 
-  created_at      DateTime          @default(now())
-  updated_at      DateTime          @updatedAt
-  CustomerBiodata CustomerBiodata[]
+  created_at       DateTime          @default(now())
+  updated_at       DateTime          @updatedAt
+  customer_biodata CustomerBiodata[]
 
   @@map("customers")
 }

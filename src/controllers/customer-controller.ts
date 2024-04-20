@@ -23,7 +23,11 @@ export const create = async (req: Request, res: Response) => {
 // Get
 export const gets = async (req: Request, res: Response) => {
   try {
-    const customers = await prismaClient.customer.findMany({});
+    const customers = await prismaClient.customer.findMany({
+      include: {
+        customer_biodata: true,
+      },
+    });
 
     return res.status(200).json({
       data: customers,
