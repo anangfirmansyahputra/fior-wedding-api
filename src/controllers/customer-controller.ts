@@ -11,10 +11,10 @@ export const create = async (req: Request, res: Response) => {
     return res.status(201).json({
       data: customer,
     });
-  } catch (err) {
-    return res.status(500).json({
+  } catch (err: any) {
+    return res.status(400).json({
       errors: {
-        message: "Internal server error",
+        message: err?.message,
       },
     });
   }
@@ -26,7 +26,7 @@ export const gets = async (req: Request, res: Response) => {
     const customers = await prismaClient.customer.findMany({
       include: {
         customer_biodata: {
-          // select: exclude("customer_biodata", ["customer_id"]),
+          select: exclude("customerBiodata", ["customer_id"]),
         },
         event: {
           select: exclude("event", ["customer_id"]),
@@ -102,7 +102,7 @@ export const deleteCustomer = async (req: Request, res: Response) => {
 
     return res.status(204).json({});
   } catch (err: any) {
-    return res.status(500).json({
+    return res.status(400).json({
       errors: {
         message: err.message,
       },

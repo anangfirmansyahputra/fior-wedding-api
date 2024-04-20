@@ -33,12 +33,12 @@ export const create = async (req: Request, res: Response) => {
     return res.status(201).json({
       data: event,
     });
-  } catch (err) {
+  } catch (err: any) {
     console.log(err);
 
-    return res.status(500).json({
+    return res.status(400).json({
       errors: {
-        message: "Internal server error",
+        message: err?.message,
       },
     });
   }
@@ -80,11 +80,11 @@ export const find = async (req: Request, res: Response) => {
     return res.status(200).json({
       data: event,
     });
-  } catch (err) {
+  } catch (err: any) {
     console.log(err);
-    return res.status(500).json({
+    return res.status(400).json({
       errors: {
-        message: "Internal server error",
+        message: err?.message,
       },
     });
   }
@@ -126,10 +126,10 @@ export const update = async (req: Request, res: Response) => {
     return res.status(200).json({
       data: updateEvent,
     });
-  } catch (err) {
-    return res.status(500).json({
+  } catch (err: any) {
+    return res.status(400).json({
       errors: {
-        message: "Internal server error",
+        message: err?.message,
       },
     });
   }

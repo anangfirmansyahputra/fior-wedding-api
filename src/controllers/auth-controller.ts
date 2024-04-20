@@ -79,12 +79,12 @@ export const login = async (req: Request, res: Response) => {
         refresh_token,
       },
     });
-  } catch (err) {
+  } catch (err: any) {
     console.log(err);
 
-    return res.status(500).json({
+    return res.status(400).json({
       errors: {
-        message: "Internal server error",
+        message: err?.message,
       },
     });
   }
@@ -139,9 +139,9 @@ export const signup = async (req: Request, res: Response) => {
   } catch (err: any) {
     console.log(err);
 
-    return res.status(500).json({
+    return res.status(400).json({
       errors: {
-        message: "Internal server error",
+        message: err?.message,
       },
     });
   }
@@ -210,10 +210,10 @@ export const refreshToken = async (req: Request, res: Response) => {
         refresh_token: newRefreshToken,
       },
     });
-  } catch (err) {
-    return res.status(500).json({
+  } catch (err: any) {
+    return res.status(400).json({
       errors: {
-        message: "Internal server error",
+        message: err?.message,
       },
     });
   }
@@ -266,10 +266,10 @@ export const update = async (req: Request, res: Response) => {
     return res.status(200).json({
       data: exclude("user", ["password", "access_token", "refresh_token"]),
     });
-  } catch (err) {
-    return res.status(500).json({
+  } catch (err: any) {
+    return res.status(400).json({
       errors: {
-        message: "Internal server error",
+        message: err?.message,
       },
     });
   }

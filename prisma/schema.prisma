@@ -100,13 +100,13 @@ model Cities {
 model Event {
   id String @id @default(uuid())
 
-  customer_id String
-  name        String
-  description String?     @db.Text
-  start_date  DateTime
-  end_date    DateTime
-  location    String      @db.Text
-  status      EventStatus @default(SCHEDULED)
+  customer_id       String
+  event_name        String
+  event_description String?     @db.Text
+  start_date        DateTime
+  end_date          DateTime
+  location          String      @db.Text
+  status            EventStatus @default(SCHEDULED)
 
   customer            Customer            @relation(fields: [customer_id], references: [id], onDelete: Cascade)
   event_vendor        EventVendor[]
