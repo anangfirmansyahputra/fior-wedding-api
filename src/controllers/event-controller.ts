@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { eventCreateSchema, eventUpdateSchema } from "../schema/event";
-import { prismaClient } from "..";
+import { exclude, prismaClient } from "..";
 
 export const create = async (req: Request, res: Response) => {
   try {
@@ -46,7 +46,18 @@ export const create = async (req: Request, res: Response) => {
 
 export const get = async (req: Request, res: Response) => {
   try {
-    const events = await prismaClient.event.findMany();
+    const events = await prismaClient.event.findMany({
+      include: {
+        event_vendor: {
+          select: {
+            id: true,
+            created_at: true,
+            updated_at: true,
+            vendor: true,
+          },
+        },
+      },
+    });
 
     return res.status(200).json({
       data: events,
@@ -82,9 +93,9 @@ export const find = async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     console.log(err);
-    return res.status(400).json({
+    return res.status(500).json({
       errors: {
-        message: err?.message,
+        message: "Internal server error",
       },
     });
   }

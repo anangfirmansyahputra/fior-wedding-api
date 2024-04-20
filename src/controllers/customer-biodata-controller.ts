@@ -169,9 +169,9 @@ export const deleteCustomer = async (req: Request, res: Response) => {
       data: {},
     });
   } catch (err: any) {
-    return res.status(400).json({
+    return res.status(500).json({
       errors: {
-        message: err?.message,
+        message: "Internal server error",
       },
     });
   }
