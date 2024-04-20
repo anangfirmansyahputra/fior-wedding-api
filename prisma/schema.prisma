@@ -129,10 +129,10 @@ model EventVendor {
   id String @id @default(uuid())
 
   event_id String
-  event    Event  @relation(fields: [event_id], references: [id])
+  event    Event  @relation(fields: [event_id], references: [id], onDelete: Cascade)
 
   vendor_id Int
-  vendor    Vendor @relation(fields: [vendor_id], references: [id])
+  vendor    Vendor @relation(fields: [vendor_id], references: [id], onDelete: Cascade)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -144,7 +144,7 @@ model EventPayment {
   id String @id @default(uuid())
 
   event_id       String
-  event          Event         @relation(fields: [event_id], references: [id])
+  event          Event         @relation(fields: [event_id], references: [id], onDelete: Cascade)
   amount         Float
   payment_method PaymentMethod
   payment_status PaymentStatus @default(PENDING)
@@ -159,7 +159,7 @@ model EventTaskTimeline {
   id String @id @default(uuid())
 
   event_id    String
-  event       Event   @relation(fields: [event_id], references: [id])
+  event       Event   @relation(fields: [event_id], references: [id], onDelete: Cascade)
   description String? @db.Text
   status      Status  @default(PENDING)
 
@@ -172,8 +172,11 @@ model EventTaskTimeline {
 model ChecklistSupport {
   id String @id @default(uuid())
 
-  event_id String
-  event    Event  @relation(fields: [event_id], references: [id])
+  event_id            String
+  event               Event      @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  support_name        String
+  support_description String?    @db.Text
+  support_status      ItemStatus @default(PENDING)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -184,8 +187,10 @@ model ChecklistSupport {
 model ChecklistHolmat {
   id String @id @default(uuid())
 
-  event_id String
-  event    Event  @relation(fields: [event_id], references: [id])
+  event_id      String
+  event         Event      @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  holmat_name   String
+  holmat_status ItemStatus @default(PENDING)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -196,8 +201,11 @@ model ChecklistHolmat {
 model EventBudget {
   id String @id @default(uuid())
 
-  event_id String
-  event    Event  @relation(fields: [event_id], references: [id])
+  event_id    String
+  event       Event      @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  item_name   String
+  item_amount Int
+  item_status ItemStatus @default(PENDING)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -208,8 +216,12 @@ model EventBudget {
 model EventRundown {
   id String @id @default(uuid())
 
-  event_id String
-  event    Event  @relation(fields: [event_id], references: [id])
+  event_id      String
+  event         Event    @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  activity_name String
+  start_time    DateTime
+  end_time      DateTime
+  location      String
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -220,8 +232,11 @@ model EventRundown {
 model EventGuestSeat {
   id String @id @default(uuid())
 
-  event_id String
-  event    Event  @relation(fields: [event_id], references: [id])
+  event_id      String
+  event         Event        @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  guest_name    String
+  seat_number   String?
+  seat_category SeatCategory
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -232,8 +247,11 @@ model EventGuestSeat {
 model EventRoomList {
   id String @id @default(uuid())
 
-  event_id String
-  event    Event  @relation(fields: [event_id], references: [id])
+  event_id      String
+  event         Event  @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  room_name     String
+  room_capacity Int?
+  room_location String
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -269,4 +287,16 @@ enum Status {
   PENDING
   IN_PROGRESS
   COMPLETED
+}
+
+enum SeatCategory {
+  VIP
+  REGULAR
+  SPECIAL
+}
+
+enum ItemStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
