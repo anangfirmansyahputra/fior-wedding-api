@@ -30,9 +30,11 @@ model User {
 model Customer {
   id String @id @default(uuid())
 
-  created_at       DateTime          @default(now())
-  updated_at       DateTime          @updatedAt
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
   customer_biodata CustomerBiodata[]
+  event            Event[]
 
   @@map("customers")
 }
@@ -69,13 +71,14 @@ model VendorCategory {
 }
 
 model Vendor {
-  id         Int      @id
-  data       Json
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  name       String
-  category   String
-  city       String
+  id           Int           @id
+  data         Json
+  created_at   DateTime      @default(now())
+  updated_at   DateTime      @updatedAt
+  name         String
+  category     String
+  city         String
+  event_vendor EventVendor[]
 
   @@map("vendors")
 }
@@ -90,4 +93,137 @@ model Cities {
   updated_at DateTime @updatedAt
 
   @@map("cities")
+}
+
+model Event {
+  id String @id @default(uuid())
+
+  customer_id String
+
+  customer            Customer            @relation(fields: [customer_id], references: [id])
+  event_vendor        EventVendor[]
+  event_payment       EventPayment[]
+  event_tasK_timeline EventTaskTimeline[]
+  checklist_support   ChecklistSupport[]
+  checklist_holmat    ChecklistHolmat[]
+  event_budget        EventBudget[]
+  event_rundown       EventRundown[]
+  event_guest_seat    EventGuestSeat[]
+  event_room_list     EventRoomList[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("events")
+}
+
+model EventVendor {
+  id String @id @default(uuid())
+
+  event_id String
+  event    Event  @relation(fields: [event_id], references: [id])
+
+  vendor_id Int
+  vendor    Vendor @relation(fields: [vendor_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("event_vendors")
+}
+
+model EventPayment {
+  id String @id @default(uuid())
+
+  event_id String
+  event    Event  @relation(fields: [event_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("event_payments")
+}
+
+model EventTaskTimeline {
+  id String @id @default(uuid())
+
+  event_id String
+  event    Event  @relation(fields: [event_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("event_task_timelines")
+}
+
+model ChecklistSupport {
+  id String @id @default(uuid())
+
+  event_id String
+  event    Event  @relation(fields: [event_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("checklist_supports")
+}
+
+model ChecklistHolmat {
+  id String @id @default(uuid())
+
+  event_id String
+  event    Event  @relation(fields: [event_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("checklist_holmats")
+}
+
+model EventBudget {
+  id String @id @default(uuid())
+
+  event_id String
+  event    Event  @relation(fields: [event_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("event_budgets")
+}
+
+model EventRundown {
+  id String @id @default(uuid())
+
+  event_id String
+  event    Event  @relation(fields: [event_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("event_rundowns")
+}
+
+model EventGuestSeat {
+  id String @id @default(uuid())
+
+  event_id String
+  event    Event  @relation(fields: [event_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("event_guest_seats")
+}
+
+model EventRoomList {
+  id String @id @default(uuid())
+
+  event_id String
+  event    Event  @relation(fields: [event_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("event_room_lists")
 }
