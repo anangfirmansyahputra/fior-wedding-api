@@ -26,6 +26,7 @@ export const gets = async (req: Request, res: Response) => {
     const customers = await prismaClient.customer.findMany({
       include: {
         customer_biodata: true,
+        event: true,
       },
     });
 

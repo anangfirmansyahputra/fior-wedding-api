@@ -40,18 +40,20 @@ model Customer {
 }
 
 model CustomerBiodata {
-  id           String  @id @default(uuid())
+  id           String    @id @default(uuid())
   first_name   String
   last_name    String?
   email        String
   phone_number String
   address      String
+  gender       Gender
+  birthday     DateTime?
+
+  customer Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
 
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
   customer_id String
-
-  customer Customer @relation(fields: [customer_id], references: [id])
 
   @@map("customer_biodatas")
 }
@@ -99,8 +101,14 @@ model Event {
   id String @id @default(uuid())
 
   customer_id String
+  name        String
+  description String?     @db.Text
+  start_date  DateTime
+  end_date    DateTime
+  location    String      @db.Text
+  status      EventStatus @default(SCHEDULED)
 
-  customer            Customer            @relation(fields: [customer_id], references: [id])
+  customer            Customer            @relation(fields: [customer_id], references: [id], onDelete: Cascade)
   event_vendor        EventVendor[]
   event_payment       EventPayment[]
   event_tasK_timeline EventTaskTimeline[]
@@ -226,4 +234,16 @@ model EventRoomList {
   updated_at DateTime @updatedAt
 
   @@map("event_room_lists")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum EventStatus {
+  SCHEDULED
+  ONGOING
+  COMPLETED
 }

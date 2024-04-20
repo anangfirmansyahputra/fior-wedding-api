@@ -7,6 +7,8 @@ export const customerBiodataCreateSchema = z.object({
   phone_number: z.string().min(10),
   address: z.string().min(10),
   customer_id: z.string(),
+  gender: z.enum(["MALE", "FEMALE", "OTHER"]),
+  birthday: z.optional(z.string().datetime()),
 });
 
 export const customerBiodataUpdateSchema = z.object({
@@ -15,4 +17,6 @@ export const customerBiodataUpdateSchema = z.object({
   email: z.optional(z.string().email()),
   phone_number: z.optional(z.string().min(10)),
   address: z.optional(z.string().min(10)),
+  gender: z.optional(z.enum(["MALE", "FEMALE", "OTHER"])),
+  birthday: z.optional(z.string().datetime()),
 });

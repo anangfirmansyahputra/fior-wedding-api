@@ -1,27 +1,20 @@
 import { Request, Response } from "express";
+import { eventCreateSchema, eventUpdateSchema } from "../schema/event";
 import { prismaClient } from "..";
-import {
-  customerBiodataCreateSchema,
-  customerBiodataUpdateSchema,
-} from "../schema/customer-biodata";
 
-// Create
 export const create = async (req: Request, res: Response) => {
   try {
-    customerBiodataCreateSchema.parse(req.body);
+    eventCreateSchema.parse(req.body);
   } catch (err: any) {
-    console.log(err);
     return res.status(400).json({
       errors: err?.issues,
     });
   }
 
   try {
-    const { customer_id } = req.body;
-
-    const customer = await prismaClient.customer.findUnique({
+    const customer = await prismaClient.customer.findFirst({
       where: {
-        id: customer_id,
+        id: req.body.customer_id,
       },
     });
 
@@ -33,14 +26,16 @@ export const create = async (req: Request, res: Response) => {
       });
     }
 
-    const customerBiodata = await prismaClient.customerBiodata.create({
+    const event = await prismaClient.event.create({
       data: req.body,
     });
 
     return res.status(201).json({
-      data: customerBiodata,
+      data: event,
     });
-  } catch (err: any) {
+  } catch (err) {
+    console.log(err);
+
     return res.status(500).json({
       errors: {
         message: "Internal server error",
@@ -49,13 +44,12 @@ export const create = async (req: Request, res: Response) => {
   }
 };
 
-// Get
-export const gets = async (req: Request, res: Response) => {
+export const get = async (req: Request, res: Response) => {
   try {
-    const customerBiodatas = await prismaClient.customerBiodata.findMany();
+    const events = await prismaClient.event.findMany();
 
     return res.status(200).json({
-      data: customerBiodatas,
+      data: events,
     });
   } catch (err) {
     console.log(err);
@@ -67,27 +61,27 @@ export const gets = async (req: Request, res: Response) => {
   }
 };
 
-// Find
 export const find = async (req: Request, res: Response) => {
   try {
-    const customerBiodata = await prismaClient.customerBiodata.findFirst({
+    const event = await prismaClient.event.findFirst({
       where: {
         id: req.params.id,
       },
     });
 
-    if (!customerBiodata) {
+    if (!event) {
       return res.status(404).json({
         errors: {
-          message: "Customer biodata not found",
+          message: "Event not found",
         },
       });
     }
 
     return res.status(200).json({
-      data: customerBiodata,
+      data: event,
     });
   } catch (err) {
+    console.log(err);
     return res.status(500).json({
       errors: {
         message: "Internal server error",
@@ -96,10 +90,9 @@ export const find = async (req: Request, res: Response) => {
   }
 };
 
-// Update
 export const update = async (req: Request, res: Response) => {
   try {
-    customerBiodataUpdateSchema.parse(req.body);
+    eventUpdateSchema.parse(req.body);
   } catch (err: any) {
     return res.status(400).json({
       errors: err?.issues,
@@ -107,23 +100,23 @@ export const update = async (req: Request, res: Response) => {
   }
 
   try {
-    const customerBiodata = await prismaClient.customerBiodata.findFirst({
+    const event = await prismaClient.event.findFirst({
       where: {
         id: req.params.id,
       },
     });
 
-    if (!customerBiodata) {
+    if (!event) {
       return res.status(404).json({
         errors: {
-          message: "Customer biodata not found",
+          message: "Event not found",
         },
       });
     }
 
     const { customer_id, ...payload } = req.body;
 
-    const updateCustomerBiodata = await prismaClient.customerBiodata.update({
+    const updateEvent = await prismaClient.event.update({
       where: {
         id: req.params.id,
       },
@@ -131,7 +124,7 @@ export const update = async (req: Request, res: Response) => {
     });
 
     return res.status(200).json({
-      data: updateCustomerBiodata,
+      data: updateEvent,
     });
   } catch (err) {
     return res.status(500).json({
@@ -142,33 +135,31 @@ export const update = async (req: Request, res: Response) => {
   }
 };
 
-// Delete
-export const deleteCustomer = async (req: Request, res: Response) => {
+export const deleteEvent = async (req: Request, res: Response) => {
   try {
-    const customerBiodata = await prismaClient.customerBiodata.findFirst({
+    const event = await prismaClient.event.findFirst({
       where: {
         id: req.params.id,
       },
     });
 
-    if (!customerBiodata) {
+    if (!event) {
       return res.status(404).json({
         errors: {
-          message: "Customer biodata not found",
+          message: "Event not found",
         },
       });
     }
 
-    await prismaClient.customerBiodata.delete({
+    await prismaClient.event.delete({
       where: {
         id: req.params.id,
       },
     });
 
-    return res.status(204).json({
-      data: {},
-    });
+    return res.status(204).json({});
   } catch (err) {
+    console.log(err);
     return res.status(500).json({
       errors: {
         message: "Internal server error",
