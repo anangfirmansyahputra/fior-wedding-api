@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import express from "express";
 import rootRouter from "./routes";
 import { signupSchema } from "./schema/user";
+import { prismaExclude } from "prisma-exclude";
 
 dotenv.config();
 
@@ -13,16 +14,19 @@ app.use("/api", rootRouter);
 
 export const prismaClient = new PrismaClient({
   // log: ["query"],
-}).$extends({
-  query: {
-    user: {
-      create({ args, query }) {
-        args.data = signupSchema.parse(args.data);
-        return query(args);
-      },
-    },
-  },
 });
+// .$extends({
+//   query: {
+//     user: {
+//       create({ args, query }) {
+//         args.data = signupSchema.parse(args.data);
+//         return query(args);
+//       },
+//     },
+//   },
+// });
+
+export const exclude = prismaExclude(prismaClient);
 
 // app.use(errorMiddleware);
 

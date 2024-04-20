@@ -143,8 +143,11 @@ model EventVendor {
 model EventPayment {
   id String @id @default(uuid())
 
-  event_id String
-  event    Event  @relation(fields: [event_id], references: [id])
+  event_id       String
+  event          Event         @relation(fields: [event_id], references: [id])
+  amount         Float
+  payment_method PaymentMethod
+  payment_status PaymentStatus @default(PENDING)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -155,8 +158,10 @@ model EventPayment {
 model EventTaskTimeline {
   id String @id @default(uuid())
 
-  event_id String
-  event    Event  @relation(fields: [event_id], references: [id])
+  event_id    String
+  event       Event   @relation(fields: [event_id], references: [id])
+  description String? @db.Text
+  status      Status  @default(PENDING)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -245,5 +250,23 @@ enum Gender {
 enum EventStatus {
   SCHEDULED
   ONGOING
+  COMPLETED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  BANK_TRANSFER
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum Status {
+  PENDING
+  IN_PROGRESS
   COMPLETED
 }

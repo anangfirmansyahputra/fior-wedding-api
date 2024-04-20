@@ -1,8 +1,8 @@
 import { compareSync, hashSync } from "bcrypt";
 import { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
-import { prismaClient } from "..";
-import { exclude } from "../lib/exclude";
+import { exclude, prismaClient } from "..";
+import { excludeField } from "../lib/exclude";
 import {
   loginSchema,
   refreshTokenSchema,
@@ -74,7 +74,7 @@ export const login = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       data: {
-        ...exclude(user, ["password"]),
+        ...excludeField(user, ["password"]),
         access_token,
         refresh_token,
       },
@@ -134,7 +134,7 @@ export const signup = async (req: Request, res: Response) => {
     });
 
     return res.status(201).json({
-      data: exclude(user, ["password"]),
+      data: excludeField(user, ["password"]),
     });
   } catch (err: any) {
     console.log(err);
@@ -225,7 +225,7 @@ export const me = async (req: Request, res: Response, next: NextFunction) => {
   res.status(200).json({
     data: {
       // @ts-ignore
-      ...exclude(req.user, ["password", "refresh_token", "access_token"]),
+      ...excludeField(req.user, ["password", "refresh_token", "access_token"]),
     },
   });
 };
@@ -264,7 +264,7 @@ export const update = async (req: Request, res: Response) => {
     });
 
     return res.status(200).json({
-      data: exclude(user, ["password", "access_token", "refresh_token"]),
+      data: exclude("user", ["password", "access_token", "refresh_token"]),
     });
   } catch (err) {
     return res.status(500).json({

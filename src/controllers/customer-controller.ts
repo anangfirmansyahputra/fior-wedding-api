@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { prismaClient } from "..";
+import { prismaClient, exclude } from "..";
 
 // Create
 export const create = async (req: Request, res: Response) => {
@@ -25,8 +25,12 @@ export const gets = async (req: Request, res: Response) => {
   try {
     const customers = await prismaClient.customer.findMany({
       include: {
-        customer_biodata: true,
-        event: true,
+        customer_biodata: {
+          // select: exclude("customer_biodata", ["customer_id"]),
+        },
+        event: {
+          select: exclude("event", ["customer_id"]),
+        },
       },
     });
 
@@ -34,6 +38,8 @@ export const gets = async (req: Request, res: Response) => {
       data: customers,
     });
   } catch (err) {
+    console.log(err);
+
     return res.status(500).json({
       errors: {
         message: "Internal server error",
