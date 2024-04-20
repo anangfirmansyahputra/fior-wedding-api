@@ -6,6 +6,7 @@ import { vendorRouter } from "./vendor-routes";
 import customerRouter from "./customer-routes";
 import eventRouter from "./event-routes";
 import { eventVendorRouter } from "./event-vendor-routes";
+import eventPaymentRouter from "./event-payment-router";
 
 const rootRouter: Router = Router();
 
@@ -16,5 +17,6 @@ rootRouter.use("/vendor-categories", vendorCategoryRouter);
 rootRouter.use("/vendors", vendorRouter);
 rootRouter.use("/events", eventRouter);
 rootRouter.use("/event-vendors", eventVendorRouter);
+rootRouter.use("/event-payments", eventPaymentRouter);
 
 export default rootRouter;

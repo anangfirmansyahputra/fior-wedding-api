@@ -18,6 +18,25 @@ const authMiddleware = async (
   }
 
   try {
+    const decodedToken = jwt.decode(access_token, { complete: true });
+
+    if (decodedToken) {
+      // @ts-ignore
+      const expirationTime = decodedToken.payload.exp;
+      const currentTime = Math.floor(Date.now() / 1000);
+
+      if (currentTime >= expirationTime) {
+        console.log("Token telah kedaluwarsa");
+        return res.status(401).json({
+          errors: {
+            message: "Token is expired",
+          },
+        });
+      } else {
+        console.log("Token masih berlaku");
+      }
+    }
+
     const payload = jwt.verify(
       access_token,
       process.env.JWT_ACCESS_SECRET_KEY!

@@ -51,15 +51,15 @@ export const login = async (req: Request, res: Response) => {
         id: user.id,
       },
       process.env.JWT_ACCESS_SECRET_KEY!,
-      { expiresIn: "6h" }
+      { expiresIn: 30 }
     );
 
     const refresh_token = jwt.sign(
       {
         id: user.id,
       },
-      process.env.JWT_REFRESH_SECRET_KEY!,
-      { expiresIn: "1d" }
+      process.env.JWT_REFRESH_SECRET_KEY!
+      // { expiresIn: "1d" }
     );
 
     await prismaClient.user.update({
@@ -185,14 +185,14 @@ export const refreshToken = async (req: Request, res: Response) => {
     const newToken = jwt.sign(
       { id: user.id },
       process.env.JWT_ACCESS_SECRET_KEY!,
-      { expiresIn: "6h" }
+      { expiresIn: 30 }
     );
 
-    const newRefreshToken = jwt.sign(
-      { id: user.id },
-      process.env.JWT_REFRESH_SECRET_KEY!,
-      { expiresIn: "6h" }
-    );
+    // const newRefreshToken = jwt.sign(
+    //   { id: user.id },
+    //   process.env.JWT_REFRESH_SECRET_KEY!,
+    //   { expiresIn: "6h" }
+    // );
 
     await prismaClient.user.update({
       where: {
@@ -200,14 +200,14 @@ export const refreshToken = async (req: Request, res: Response) => {
       },
       data: {
         access_token: newToken,
-        refresh_token: newRefreshToken,
+        // refresh_token: newRefreshToken,
       },
     });
 
     return res.status(200).json({
       data: {
         access_token: newToken,
-        refresh_token: newRefreshToken,
+        // refresh_token: newRefreshToken,
       },
     });
   } catch (err: any) {
