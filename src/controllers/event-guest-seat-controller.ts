@@ -1,41 +1,44 @@
 import { Request, Response } from "express";
-import { eventCreateSchema, eventUpdateSchema } from "../schema/event";
-import { exclude, prismaClient } from "..";
+import {
+  eventGuestSeatCreateSchema,
+  eventGuestSeatUpdateSchema,
+} from "../schema/event-guest-seat";
+import { prismaClient } from "..";
 
 export const create = async (req: Request, res: Response) => {
   try {
-    eventCreateSchema.parse(req.body);
+    eventGuestSeatCreateSchema.parse(req.body);
   } catch (err: any) {
     return res.status(400).json({
-      errors: err?.issues,
+      errors: {
+        message: err?.issues,
+      },
     });
   }
 
   try {
-    const customer = await prismaClient.customer.findFirst({
+    const event = await prismaClient.event.findFirst({
       where: {
-        id: req.body.customer_id,
+        id: req.body.event_id,
       },
     });
 
-    if (!customer) {
-      return res.status(404).json({
+    if (!event) {
+      return res.status(400).json({
         errors: {
-          message: "Customer not found",
+          message: "Event not found",
         },
       });
     }
 
-    const event = await prismaClient.event.create({
+    const eventGuestSeat = await prismaClient.eventGuestSeat.create({
       data: req.body,
     });
 
     return res.status(201).json({
-      data: event,
+      data: eventGuestSeat,
     });
   } catch (err: any) {
-    console.log(err);
-
     return res.status(400).json({
       errors: {
         message: err?.message,
@@ -46,23 +49,12 @@ export const create = async (req: Request, res: Response) => {
 
 export const get = async (req: Request, res: Response) => {
   try {
-    const events = await prismaClient.event.findMany({
-      include: {
-        event_vendor: {
-          include: {
-            vendor: true,
-          },
-        },
-        event_payment: true,
-        event_guest_seat: true,
-      },
-    });
+    const eventGuestSeats = await prismaClient.eventGuestSeat.findMany({});
 
     return res.status(200).json({
-      data: events,
+      data: eventGuestSeats,
     });
   } catch (err) {
-    console.log(err);
     return res.status(500).json({
       errors: {
         message: "Internal server error",
@@ -73,25 +65,24 @@ export const get = async (req: Request, res: Response) => {
 
 export const find = async (req: Request, res: Response) => {
   try {
-    const event = await prismaClient.event.findFirst({
+    const eventGuestSeat = await prismaClient.eventGuestSeat.findFirst({
       where: {
         id: req.params.id,
       },
     });
 
-    if (!event) {
+    if (!eventGuestSeat) {
       return res.status(404).json({
         errors: {
-          message: "Event not found",
+          message: "Event guest seat not found",
         },
       });
     }
 
     return res.status(200).json({
-      data: event,
+      data: eventGuestSeat,
     });
-  } catch (err: any) {
-    console.log(err);
+  } catch (err) {
     return res.status(500).json({
       errors: {
         message: "Internal server error",
@@ -102,39 +93,39 @@ export const find = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   try {
-    eventUpdateSchema.parse(req.body);
+    eventGuestSeatUpdateSchema.parse(req.body);
   } catch (err: any) {
     return res.status(400).json({
-      errors: err?.issues,
+      errors: {
+        message: err?.issues,
+      },
     });
   }
 
   try {
-    const event = await prismaClient.event.findFirst({
+    const findData = await prismaClient.eventGuestSeat.findFirst({
       where: {
         id: req.params.id,
       },
     });
 
-    if (!event) {
+    if (!findData) {
       return res.status(404).json({
         errors: {
-          message: "Event not found",
+          message: "Event guest seat not found",
         },
       });
     }
 
-    const { customer_id, ...payload } = req.body;
-
-    const updateEvent = await prismaClient.event.update({
+    const updateData = await prismaClient.eventGuestSeat.update({
       where: {
         id: req.params.id,
       },
-      data: payload,
+      data: req.body,
     });
 
     return res.status(200).json({
-      data: updateEvent,
+      data: updateData,
     });
   } catch (err: any) {
     return res.status(400).json({
@@ -145,31 +136,30 @@ export const update = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteEvent = async (req: Request, res: Response) => {
+export const remove = async (req: Request, res: Response) => {
   try {
-    const event = await prismaClient.event.findFirst({
+    const findData = await prismaClient.eventGuestSeat.findFirst({
       where: {
         id: req.params.id,
       },
     });
 
-    if (!event) {
+    if (!findData) {
       return res.status(404).json({
         errors: {
-          message: "Event not found",
+          message: "Event guest seat not found",
         },
       });
     }
 
-    await prismaClient.event.delete({
+    await prismaClient.eventGuestSeat.delete({
       where: {
         id: req.params.id,
       },
     });
 
     return res.status(204).json({});
-  } catch (err) {
-    console.log(err);
+  } catch (err: any) {
     return res.status(500).json({
       errors: {
         message: "Internal server error",
