@@ -20,6 +20,11 @@ export const scrappingVendor = async (req: Request, res: Response) => {
       next = data.pagination.next;
       vendors = data.vendors;
 
+      if (vendors.length === 0) {
+        next = null;
+        console.log("Scrapping vendors success");
+      }
+
       for (const vendor of vendors) {
         await prismaClient.vendor.upsert({
           where: {
