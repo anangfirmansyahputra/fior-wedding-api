@@ -85,6 +85,7 @@ export const getVendors = async (req: Request, res: Response) => {
     if (name) {
       whereClause.name = {
         contains: name,
+        mode: "insensitive",
       };
     }
 
