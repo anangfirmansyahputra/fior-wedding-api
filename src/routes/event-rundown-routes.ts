@@ -6,13 +6,14 @@ import {
   find,
   remove,
 } from "../controllers/event-rundown.controller";
+import authMiddleware from "../middlewares/auth";
 
 const eventRundownRouter: Router = Router();
 
-eventRundownRouter.get("/:event_id/rundowns", get);
-eventRundownRouter.post("/:event_id/rundowns", create);
-eventRundownRouter.get("/:event_id/rundowns/:id", find);
-eventRundownRouter.patch("/:event_id/rundowns/:id", update);
-eventRundownRouter.delete("/:event_id/rundowns/:id", remove);
+eventRundownRouter.get("/:event_id/rundowns", authMiddleware, get);
+eventRundownRouter.post("/:event_id/rundowns", authMiddleware, create);
+eventRundownRouter.get("/:event_id/rundowns/:id", authMiddleware, find);
+eventRundownRouter.patch("/:event_id/rundowns/:id", authMiddleware, update);
+eventRundownRouter.delete("/:event_id/rundowns/:id", authMiddleware, remove);
 
 export default eventRundownRouter;

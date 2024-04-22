@@ -9,6 +9,7 @@ import eventRundownRouter from "./event-rundown-routes";
 import { eventVendorRouter } from "./event-vendor-routes";
 import { vendorCategoryRouter } from "./vendor-category-routes";
 import { vendorRouter } from "./vendor-routes";
+import { roleRoutes } from "./role-routes";
 
 const rootRouter: Router = Router();
 
@@ -29,5 +30,7 @@ rootRouter.use("/events", [
 // rootRouter.use("/event-guest-seats", eventGuestSeatRouter);
 
 // rootRouter.use("/events", eventNewRouter);
+
+rootRouter.use("/roles", roleRoutes);
 
 export default rootRouter;

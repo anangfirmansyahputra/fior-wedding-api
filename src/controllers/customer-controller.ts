@@ -5,7 +5,10 @@ import { prismaClient, exclude } from "..";
 export const create = async (req: Request, res: Response) => {
   try {
     const customer = await prismaClient.customer.create({
-      data: {},
+      data: {
+        // @ts-ignore
+        user_id: req.user.id,
+      },
     });
 
     return res.status(201).json({
@@ -24,6 +27,10 @@ export const create = async (req: Request, res: Response) => {
 export const gets = async (req: Request, res: Response) => {
   try {
     const customers = await prismaClient.customer.findMany({
+      where: {
+        // @ts-ignore
+        user_id: req.user.id,
+      },
       include: {
         customer_biodata: {
           select: exclude("customerBiodata", ["customer_id"]),
@@ -54,6 +61,8 @@ export const find = async (req: Request, res: Response) => {
     const customer = await prismaClient.customer.findUnique({
       where: {
         id: req.params.id,
+        // @ts-ignore
+        user_id: req.user.id,
       },
     });
 
@@ -83,6 +92,8 @@ export const deleteCustomer = async (req: Request, res: Response) => {
     const customer = await prismaClient.customer.findUnique({
       where: {
         id: req.params.id,
+        // @ts-ignore
+        user_id: req.user.id,
       },
     });
 

@@ -14,27 +14,63 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  name       String
-  username   String   @unique
-  password   String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id       String @id @default(uuid())
+  name     String
+  username String @unique
+  password String
+  role_id  String
 
   access_token  String? @db.Text
   refresh_token String? @db.Text
 
-  @@map("users")
-}
-
-model Customer {
-  id String @id @default(uuid())
+  role     Role       @relation(fields: [role_id], references: [id])
+  customer Customer[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  @@map("users")
+}
+
+model Role {
+  id   String @id @default(uuid())
+  name String @unique
+
+  user             User[]
+  role_permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model RolePermission {
+  id            String @id @default(uuid())
+  role_id       String
+  permission_id Int
+
+  role       Role       @relation(fields: [role_id], references: [id])
+  permission Permission @relation(fields: [permission_id], references: [id])
+
+  @@map("role_permissions")
+}
+
+model Permission {
+  id               Int              @id
+  name             String           @unique
+  role_permissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model Customer {
+  id      String @id @default(uuid())
+  user_id String
+
+  user             User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
   customer_biodata CustomerBiodata[]
   event            Event[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("customers")
 }
@@ -299,4 +335,9 @@ enum ItemStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum Roles {
+  ADMIN
+  CUSTOMER
 }

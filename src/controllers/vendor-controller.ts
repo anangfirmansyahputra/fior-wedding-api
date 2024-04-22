@@ -85,7 +85,6 @@ export const getVendors = async (req: Request, res: Response) => {
     if (name) {
       whereClause.name = {
         contains: name,
-        mode: "insensitive",
       };
     }
 
@@ -127,6 +126,8 @@ export const getVendors = async (req: Request, res: Response) => {
       },
     });
   } catch (err: any) {
+    console.log(err);
+
     return res.status(500).json({
       errors: {
         message: "Internal server error",

@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
 import { exclude, prismaClient } from "..";
 import { excludeField } from "../lib/exclude";
+import { roles } from "../config/roles";
 import {
   loginSchema,
   refreshTokenSchema,
@@ -30,6 +31,18 @@ export const login = async (req: Request, res: Response) => {
       },
     });
 
+    const rolePermissions = await prismaClient.rolePermission.findMany({
+      where: {
+        // @ts-ignore
+        role_id: user?.role_id,
+      },
+      select: {
+        permission: true,
+      },
+    });
+
+    const permissions = rolePermissions.map((per) => per.permission.name);
+
     if (!user) {
       return res.status(404).json({
         errors: {
@@ -51,7 +64,7 @@ export const login = async (req: Request, res: Response) => {
         id: user.id,
       },
       process.env.JWT_ACCESS_SECRET_KEY!,
-      { expiresIn: 30 }
+      { expiresIn: "7d" }
     );
 
     const refresh_token = jwt.sign(
@@ -59,7 +72,6 @@ export const login = async (req: Request, res: Response) => {
         id: user.id,
       },
       process.env.JWT_REFRESH_SECRET_KEY!
-      // { expiresIn: "1d" }
     );
 
     await prismaClient.user.update({
@@ -72,11 +84,12 @@ export const login = async (req: Request, res: Response) => {
       },
     });
 
+    const { password: pass, role_id, ...data } = user;
+
     return res.status(200).json({
       data: {
-        ...excludeField(user, ["password"]),
-        access_token,
-        refresh_token,
+        ...data,
+        permissions,
       },
     });
   } catch (err: any) {
@@ -130,6 +143,7 @@ export const signup = async (req: Request, res: Response) => {
         username,
         name,
         password: hashSync(password, 10),
+        role_id: req.body.role_id,
       },
     });
 
@@ -222,10 +236,15 @@ export const refreshToken = async (req: Request, res: Response) => {
 // Me
 export const me = async (req: Request, res: Response, next: NextFunction) => {
   // @ts-ignore
+  const role = roles.find((role) => role.name === req.user.role);
+
   res.status(200).json({
     data: {
       // @ts-ignore
       ...excludeField(req.user, ["password", "refresh_token", "access_token"]),
+      // @ts-ignore
+      role: role?.name,
+      permissions: role?.permissions,
     },
   });
 };
@@ -264,7 +283,7 @@ export const update = async (req: Request, res: Response) => {
     });
 
     return res.status(200).json({
-      data: exclude("user", ["password", "access_token", "refresh_token"]),
+      data: excludeField(user, ["password", "access_token", "refresh_token"]),
     });
   } catch (err: any) {
     return res.status(400).json({
