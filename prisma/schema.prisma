@@ -36,30 +36,31 @@ model Role {
   id   String @id @default(uuid())
   name String @unique
 
-  user             User[]
-  role_permissions RolePermission[]
+  user        User[]
+  permissions String[]
+  // role_permissions RolePermission[]
 
   @@map("roles")
 }
 
-model RolePermission {
-  id            String @id @default(uuid())
-  role_id       String
-  permission_id Int
+// model RolePermission {
+//   id            String @id @default(uuid())
+//   role_id       String
+//   permission_id Int
 
-  role       Role       @relation(fields: [role_id], references: [id])
-  permission Permission @relation(fields: [permission_id], references: [id])
+//   role       Role       @relation(fields: [role_id], references: [id])
+//   permission Permission @relation(fields: [permission_id], references: [id])
 
-  @@map("role_permissions")
-}
+//   @@map("role_permissions")
+// }
 
-model Permission {
-  id               Int              @id
-  name             String           @unique
-  role_permissions RolePermission[]
+// model Permission {
+//   id               Int              @id
+//   name             String           @unique
+//   role_permissions RolePermission[]
 
-  @@map("permissions")
-}
+//   @@map("permissions")
+// }
 
 model Customer {
   id      String @id @default(uuid())

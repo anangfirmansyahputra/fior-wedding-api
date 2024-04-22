@@ -32,5 +32,4 @@ rootRouter.use("/events", [
 // rootRouter.use("/events", eventNewRouter);
 
 rootRouter.use("/roles", roleRoutes);
-
 export default rootRouter;

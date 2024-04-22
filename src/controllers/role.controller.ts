@@ -1,40 +1,82 @@
 import { Request, Response } from "express";
-import { prismaClient } from "../index";
+import app, { prismaClient } from "../index";
+import expressListEndpoints from "express-list-endpoints";
 
 export const get = async (req: Request, res: Response) => {
   try {
-    const roles = await prismaClient.role.findMany({
-      include: {
-        role_permissions: true,
+    const roles = await prismaClient.role.findMany({});
+
+    return res.status(200).json({
+      data: roles,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      errors: {
+        message: "Internal server error",
       },
     });
+  }
+};
 
-    const rolesPermissions = await prismaClient.rolePermission.findMany({
-      include: {
-        permission: true,
+export const update = async (req: Request, res: Response) => {
+  try {
+    const routes = expressListEndpoints(app);
+
+    function createPermissions(routes: any) {
+      const permissionsSet = new Set();
+
+      routes.forEach((route: any) => {
+        const { path, methods } = route;
+        const pathSegments = path
+          .split("/")
+          .filter((segment: any) => segment !== "");
+
+        let objectName = "";
+
+        pathSegments.forEach((segment: any) => {
+          if (!segment.startsWith(":")) {
+            objectName += `${segment}.`;
+          }
+        });
+
+        objectName = objectName.slice(0, -1);
+
+        methods.forEach((method: any) => {
+          const actionName = method.toLowerCase();
+          const permissionName = `${objectName}.${actionName}`;
+
+          permissionsSet.add(permissionName);
+        });
+      });
+
+      const permissions = Array.from(permissionsSet);
+
+      const formattedPermissions = permissions.map((permission: any) =>
+        permission.replace(/^api\./, "")
+      );
+
+      return formattedPermissions;
+    }
+
+    const permissions = createPermissions(routes);
+    const roles = await prismaClient.role.upsert({
+      where: {
+        name: "ADMIN",
       },
-    });
-
-    const formatPermissons = rolesPermissions.map((role) => ({
-      id: role.role_id,
-      name: role.permission.name,
-    }));
-
-    const formatRoles = roles.map((r) => {
-      const format = formatPermissons.filter((role) => role.id === r.id);
-
-      return {
-        id: r.id,
-        name: r.name,
-        permissions: format.map((n) => n.name),
-      };
+      create: {
+        name: "ADMIN",
+        permissions,
+      },
+      update: {
+        name: "ADMIN",
+        permissions,
+      },
     });
 
     return res.status(200).json({
-      data: formatRoles,
+      data: roles,
     });
-  } catch (err) {
-    console.log(err);
+  } catch (err: any) {
     return res.status(500).json({
       errors: {
         message: "Internal server error",

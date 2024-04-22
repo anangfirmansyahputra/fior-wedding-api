@@ -47,6 +47,14 @@ const authMiddleware = async (
         id: payload.id,
         access_token,
       },
+      include: {
+        role: {
+          select: {
+            name: true,
+            permissions: true,
+          },
+        },
+      },
     });
 
     if (!user) {
