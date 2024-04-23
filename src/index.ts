@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import cors from "cors";
 import dotenv from "dotenv";
-import express from "express";
+import express, { Request, Response } from "express";
 import { prismaExclude } from "prisma-exclude";
 import authMiddleware from "./middlewares/auth";
 import rootRouter from "./routes";
@@ -13,6 +13,12 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.get("/", (req: Request, res: Response) => {
+  res.status(200).json({
+    title: "Fior Wedding App",
+    author: "Koding Academy",
+  });
+});
 app.use("/api", authMiddleware, rootRouter);
 
 export const prismaClient = new PrismaClient({});

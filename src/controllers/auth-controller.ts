@@ -184,12 +184,18 @@ export const signup = async (req: Request, res: Response) => {
       });
     }
 
+    const role = await prismaClient.role.findFirst({
+      where: {
+        name: "CUSTOMER",
+      },
+    });
+
     user = await prismaClient.user.create({
       data: {
         username,
         name,
         password: hashSync(password, 10),
-        role_id: req.body.role_id,
+        role_id: req.body.role_id ?? role?.id,
       },
     });
 

@@ -4,7 +4,7 @@ export const signupSchema = z.object({
   name: z.string(),
   username: z.string().min(6),
   password: z.string().min(6),
-  role_id: z.string().min(6),
+  role_id: z.optional(z.string().min(6)),
 });
 
 export const loginSchema = z.object({
