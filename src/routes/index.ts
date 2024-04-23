@@ -9,7 +9,7 @@ import eventRundownRouter from "./event-rundown-routes";
 import { eventVendorRouter } from "./event-vendor-routes";
 import { vendorCategoryRouter } from "./vendor-category-routes";
 import { vendorRouter } from "./vendor-routes";
-import { roleRoutes } from "./role-routes";
+import { roleRoutes } from "./role.router";
 import permissionRouter from "./permission.router";
 
 const rootRouter: Router = Router();

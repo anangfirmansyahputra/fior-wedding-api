@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { prismaClient } from "../index";
 import { ErrorCode, getErrorMessage } from "../lib/error-code";
+import { Prisma } from "@prisma/client";
 
 export const get = async (req: Request, res: Response) => {
   try {
@@ -54,6 +55,12 @@ export const create = async (req: Request, res: Response) => {
   }
 
   try {
+    const uniquePermissions = permissions.filter(
+      (permission: string, index: string) => {
+        return permissions.indexOf(permission) === index;
+      }
+    );
+
     const [role] = await prismaClient.$transaction([
       prismaClient.role.create({
         data: {
@@ -64,7 +71,7 @@ export const create = async (req: Request, res: Response) => {
 
     const [rolePermissions] = await prismaClient.$transaction([
       prismaClient.rolePermission.createMany({
-        data: req.body.permissions.map((permission: string) => ({
+        data: uniquePermissions.map((permission: string) => ({
           role_id: role.id,
           permission_id: permission,
         })),
@@ -85,17 +92,29 @@ export const create = async (req: Request, res: Response) => {
       data: data,
       message: "Role created successfully",
     });
-  } catch (err: any) {
-    console.log(err);
-
-    return res.status(500).json({
-      success: false,
-      errors: {
-        error_code: ErrorCode.INTERNAL_SERVER_ERROR,
-        error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
-        message: "Internal server error",
-      },
-    });
+  } catch (e: any) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2002") {
+        console.log(e.name);
+        return res.status(400).json({
+          success: false,
+          errors: {
+            error_code: ErrorCode.INVALID_INPUT,
+            error_message: getErrorMessage(ErrorCode.INVALID_INPUT),
+            message: e.message,
+          },
+        });
+      }
+    } else {
+      return res.status(500).json({
+        success: false,
+        errors: {
+          error_code: ErrorCode.INTERNAL_SERVER_ERROR,
+          error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
+          message: "Internal server error",
+        },
+      });
+    }
   }
 };
 
