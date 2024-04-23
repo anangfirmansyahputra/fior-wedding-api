@@ -66,10 +66,27 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
+    const permissions = await prismaClient.rolePermission.findMany({
+      where: {
+        role_id: user.role_id,
+      },
+      include: {
+        permission: {
+          select: {
+            name_code: true,
+          },
+        },
+      },
+    });
+
+    const formatToken = permissions.map(
+      (permission) => permission.permission.name_code
+    );
+
     const access_token = jwt.sign(
       {
         id: user.id,
-        permissions: user.role.permissions,
+        permissions: formatToken,
       },
       process.env.JWT_ACCESS_SECRET_KEY!,
       { expiresIn: "7d" }

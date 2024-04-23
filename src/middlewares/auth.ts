@@ -41,6 +41,8 @@ const authMiddleware = (permission?: string) => {
 
     try {
       const decodedToken = jwt.decode(access_token, { complete: true });
+      // @ts-ignore
+      const permissions = decodedToken.payload?.permissions;
 
       if (decodedToken) {
         // @ts-ignore
@@ -48,7 +50,7 @@ const authMiddleware = (permission?: string) => {
         const currentTime = Math.floor(Date.now() / 1000);
 
         if (currentTime >= expirationTime) {
-          console.log("Token telah kedaluwarsa");
+          // console.log("Token telah kedaluwarsa");
           return res.status(401).json({
             success: false,
             errors: {
@@ -71,12 +73,7 @@ const authMiddleware = (permission?: string) => {
           access_token,
         },
         include: {
-          role: {
-            select: {
-              name: true,
-              permissions: true,
-            },
-          },
+          role: true,
         },
       });
 
@@ -91,8 +88,7 @@ const authMiddleware = (permission?: string) => {
         });
       }
 
-      // @ts-ignore
-      const permissions = decodedToken.payload?.permissions;
+      console.log(permissions);
 
       if (!permission) {
         // @ts-ignore
@@ -113,9 +109,6 @@ const authMiddleware = (permission?: string) => {
 
       // @ts-ignore
       req.user = user;
-
-      // @ts-ignore
-      console.log(req.user);
 
       return next();
     } catch (err) {

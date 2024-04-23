@@ -37,10 +37,30 @@ model Role {
   name String @unique
 
   user        User[]
-  permissions String[]
+  // permissions    String[]
   // role_permissions RolePermission[]
+  permissions RolePermission[]
 
   @@map("roles")
+}
+
+model RolePermission {
+  id            String @id @default(uuid())
+  role_id       String
+  permission_id String
+
+  role       Role       @relation(fields: [role_id], references: [id])
+  permission Permission @relation(fields: [permission_id], references: [id])
+
+  @@map("role_permissions")
+}
+
+model Permission {
+  id        String @id @default(uuid())
+  name      String
+  name_code String @unique
+
+  role_permissions RolePermission[]
 }
 
 model Customer {
