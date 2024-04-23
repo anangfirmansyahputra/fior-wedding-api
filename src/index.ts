@@ -1,11 +1,10 @@
 import { PrismaClient } from "@prisma/client";
+import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import rootRouter from "./routes";
-import { signupSchema } from "./schema/user";
 import { prismaExclude } from "prisma-exclude";
-import expressListEndpoints from "express-list-endpoints";
-import cors from "cors";
+import authMiddleware from "./middlewares/auth";
+import rootRouter from "./routes";
 
 dotenv.config();
 
@@ -13,7 +12,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use("/api", rootRouter);
+app.use("/api", authMiddleware, rootRouter);
 
 export const prismaClient = new PrismaClient({});
 

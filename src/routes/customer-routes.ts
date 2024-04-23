@@ -9,9 +9,9 @@ import authMiddleware from "../middlewares/auth";
 
 const customerRouter = Router();
 
-customerRouter.get("/", authMiddleware, gets);
-customerRouter.post("/", authMiddleware, create);
-customerRouter.get("/:id", authMiddleware, find);
-customerRouter.delete("/:id", authMiddleware, deleteCustomer);
+customerRouter.get("/", gets);
+customerRouter.post("/", create);
+customerRouter.get("/:id", find);
+customerRouter.delete("/:id", deleteCustomer);
 
 export default customerRouter;

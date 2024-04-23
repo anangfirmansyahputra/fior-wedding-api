@@ -7,6 +7,24 @@ const authMiddleware = async (
   res: Response,
   next: NextFunction
 ) => {
+  const path = req.path.substring(1).replace("/", ".");
+  const method = req.method.toLowerCase();
+  // const permission = `${path}.${method}`;
+  const arrayPath = req.path.substring(1).split("/");
+  let newPath: string[] = [];
+
+  arrayPath.forEach((w: string) => {
+    if (w.length !== 36) {
+      newPath.push(w);
+    }
+  });
+
+  const permission = `${newPath.join(".")}.${method}`;
+
+  if (path === "auth.signup" || path === "auth.login" || path === "roles") {
+    return next();
+  }
+
   const access_token = req.headers.authorization;
 
   if (!access_token) {
@@ -33,7 +51,19 @@ const authMiddleware = async (
           },
         });
       } else {
-        console.log("Token masih berlaku");
+        // @ts-ignore
+        const permissions = decodedToken.payload?.permissions;
+        // console.log("Token masih berlaku");
+
+        console.log(permission);
+
+        if (!permissions.includes(permission)) {
+          return res.status(403).json({
+            errors: {
+              message: "This account has no permissions",
+            },
+          });
+        }
       }
     }
 

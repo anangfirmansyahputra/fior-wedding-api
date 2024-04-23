@@ -57,6 +57,7 @@ export const login = async (req: Request, res: Response) => {
     const access_token = jwt.sign(
       {
         id: user.id,
+        permissions: user.role.permissions,
       },
       process.env.JWT_ACCESS_SECRET_KEY!,
       { expiresIn: "7d" }
@@ -108,6 +109,14 @@ export const signup = async (req: Request, res: Response) => {
         id: req.body.role_id,
       },
     });
+
+    if (!role) {
+      return res.status(404).json({
+        errors: {
+          message: "Role not found",
+        },
+      });
+    }
   } catch (err: any) {
     console.log(err);
     return res.status(400).json({
@@ -187,6 +196,14 @@ export const refreshToken = async (req: Request, res: Response) => {
         id: decoded.id,
         refresh_token,
       },
+      include: {
+        role: {
+          select: {
+            name: true,
+            permissions: true,
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -198,7 +215,7 @@ export const refreshToken = async (req: Request, res: Response) => {
     }
 
     const newToken = jwt.sign(
-      { id: user.id },
+      { id: user.id, permissions: user.role.permissions },
       process.env.JWT_ACCESS_SECRET_KEY!,
       { expiresIn: "7d" }
     );

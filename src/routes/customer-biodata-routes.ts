@@ -10,18 +10,10 @@ import authMiddleware from "../middlewares/auth";
 
 const customerBiodataRouter = Router();
 
-customerBiodataRouter.post("/:customer_id/biodatas", authMiddleware, create);
-customerBiodataRouter.get("/:customer_id/biodatas", authMiddleware, gets);
-customerBiodataRouter.get("/:customer_id/biodatas/:id", authMiddleware, find);
-customerBiodataRouter.patch(
-  "/:customer_id/biodatas/:id",
-  authMiddleware,
-  update
-);
-customerBiodataRouter.delete(
-  "/:customer_id/biodatas/:id",
-  authMiddleware,
-  deleteCustomer
-);
+customerBiodataRouter.post("/:customer_id/biodatas", create);
+customerBiodataRouter.get("/:customer_id/biodatas", gets);
+customerBiodataRouter.get("/:customer_id/biodatas/:id", find);
+customerBiodataRouter.patch("/:customer_id/biodatas/:id", update);
+customerBiodataRouter.delete("/:customer_id/biodatas/:id", deleteCustomer);
 
 export default customerBiodataRouter;

@@ -73,8 +73,36 @@ export const update = async (req: Request, res: Response) => {
       },
     });
 
+    const roleCustomer = await prismaClient.role.upsert({
+      where: {
+        name: "CUSTOMER",
+      },
+      update: {
+        name: "CUSTOMER",
+        permissions: [
+          "events.post",
+          "events.get",
+          "events.delete",
+          "events.patch",
+          "auth.me.get",
+          "auth.me.patch",
+        ],
+      },
+      create: {
+        name: "CUSTOMER",
+        permissions: [
+          "events.post",
+          "events.get",
+          "events.delete",
+          "events.patch",
+          "auth.me.get",
+          "auth.me.patch",
+        ],
+      },
+    });
+
     return res.status(200).json({
-      data: roles,
+      data: [roles, roleCustomer],
     });
   } catch (err: any) {
     return res.status(500).json({
