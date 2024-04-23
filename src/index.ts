@@ -19,7 +19,7 @@ app.get("/", (req: Request, res: Response) => {
     author: "Koding Academy",
   });
 });
-app.use("/api", authMiddleware, rootRouter);
+app.use("/api", rootRouter);
 
 export const prismaClient = new PrismaClient({});
 

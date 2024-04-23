@@ -10,10 +10,10 @@ import authMiddleware from "../middlewares/auth";
 
 const eventRouter = Router();
 
-eventRouter.post("/", create);
-eventRouter.get("/", get);
-eventRouter.get("/:id", find);
-eventRouter.delete("/:id", deleteEvent);
-eventRouter.patch("/:id", update);
+eventRouter.post("/", authMiddleware("create_event"), create);
+eventRouter.get("/", authMiddleware("read_event"), get);
+eventRouter.get("/:id", authMiddleware("read_event"), find);
+eventRouter.delete("/:id", authMiddleware("delete_event"), deleteEvent);
+eventRouter.patch("/:id", authMiddleware("update_event"), update);
 
 export default eventRouter;

@@ -9,9 +9,13 @@ import authMiddleware from "../middlewares/auth";
 
 const customerRouter = Router();
 
-customerRouter.get("/", gets);
-customerRouter.post("/", create);
-customerRouter.get("/:id", find);
-customerRouter.delete("/:id", deleteCustomer);
+customerRouter.get("/", authMiddleware("read_customer"), gets);
+customerRouter.post("/", authMiddleware("create_customer"), create);
+customerRouter.get("/:id", authMiddleware("read_customer"), find);
+customerRouter.delete(
+  "/:id",
+  authMiddleware("delete_customer"),
+  deleteCustomer
+);
 
 export default customerRouter;
