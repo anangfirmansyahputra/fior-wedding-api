@@ -5,6 +5,7 @@ import express from "express";
 import { prismaExclude } from "prisma-exclude";
 import authMiddleware from "./middlewares/auth";
 import rootRouter from "./routes";
+import permissionRouter from "./routes/permission.router";
 
 dotenv.config();
 

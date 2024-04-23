@@ -21,7 +21,12 @@ const authMiddleware = async (
 
   const permission = `${newPath.join(".")}.${method}`;
 
-  if (path === "auth.signup" || path === "auth.login" || path === "roles") {
+  if (
+    path === "auth.signup" ||
+    path === "auth.login"
+    // || path === "roles" ||
+    // path === "permissions"
+  ) {
     return next();
   }
 
@@ -54,8 +59,6 @@ const authMiddleware = async (
         // @ts-ignore
         const permissions = decodedToken.payload?.permissions;
         // console.log("Token masih berlaku");
-
-        console.log(permission);
 
         if (!permissions.includes(permission)) {
           return res.status(403).json({

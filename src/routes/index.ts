@@ -10,6 +10,7 @@ import { eventVendorRouter } from "./event-vendor-routes";
 import { vendorCategoryRouter } from "./vendor-category-routes";
 import { vendorRouter } from "./vendor-routes";
 import { roleRoutes } from "./role-routes";
+import permissionRouter from "./permission.router";
 
 const rootRouter: Router = Router();
 
@@ -25,4 +26,5 @@ rootRouter.use("/events", [
   eventVendorRouter,
 ]);
 rootRouter.use("/roles", roleRoutes);
+rootRouter.use("/permissions", permissionRouter);
 export default rootRouter;
