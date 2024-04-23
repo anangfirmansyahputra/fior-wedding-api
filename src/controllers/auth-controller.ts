@@ -9,6 +9,7 @@ import {
   signupSchema,
   updateUserSchema,
 } from "../schema/user";
+import { ErrorCode, getErrorMessage } from "../lib/error-code";
 
 // Login
 export const login = async (req: Request, res: Response) => {
@@ -17,7 +18,12 @@ export const login = async (req: Request, res: Response) => {
   } catch (err: any) {
     console.log(err);
     return res.status(400).json({
-      errors: err?.issues,
+      success: false,
+      errors: {
+        error_code: ErrorCode.INVALID_INPUT,
+        error_message: getErrorMessage(ErrorCode.INVALID_INPUT),
+        message: err?.issues,
+      },
     });
   }
 
@@ -40,7 +46,10 @@ export const login = async (req: Request, res: Response) => {
 
     if (!user) {
       return res.status(404).json({
+        success: false,
         errors: {
+          error_code: ErrorCode.NOT_FOUND,
+          error_message: getErrorMessage(ErrorCode.NOT_FOUND),
           message: "User not found",
         },
       });
@@ -48,7 +57,10 @@ export const login = async (req: Request, res: Response) => {
 
     if (!compareSync(password, user?.password)) {
       return res.status(401).json({
+        success: false,
         errors: {
+          error_code: ErrorCode.PASSWORD_INCORRECT,
+          error_message: getErrorMessage(ErrorCode.PASSWORD_INCORRECT),
           message: "Invalid password",
         },
       });
@@ -60,7 +72,7 @@ export const login = async (req: Request, res: Response) => {
         permissions: user.role.permissions,
       },
       process.env.JWT_ACCESS_SECRET_KEY!,
-      { expiresIn: "7d" }
+      { expiresIn: 30 }
     );
 
     const refresh_token = jwt.sign(
@@ -82,17 +94,22 @@ export const login = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       // @ts-ignore
+      success: true,
       data: {
         ...excludeField(user, ["password", "role_id"]),
         access_token,
         refresh_token,
       },
+      message: "Login successful",
     });
   } catch (err: any) {
     console.log(err);
 
     return res.status(400).json({
+      success: false,
       errors: {
+        error_code: ErrorCode.INVALID_INPUT,
+        error_message: getErrorMessage(ErrorCode.INVALID_INPUT),
         message: err?.message,
       },
     });
@@ -112,7 +129,10 @@ export const signup = async (req: Request, res: Response) => {
 
     if (!role) {
       return res.status(404).json({
+        success: false,
         errors: {
+          error_code: ErrorCode.NOT_FOUND,
+          error_message: getErrorMessage(ErrorCode.NOT_FOUND),
           message: "Role not found",
         },
       });
@@ -120,7 +140,12 @@ export const signup = async (req: Request, res: Response) => {
   } catch (err: any) {
     console.log(err);
     return res.status(400).json({
-      errors: err?.issues,
+      success: false,
+      errors: {
+        error_code: ErrorCode.INVALID_INPUT,
+        error_message: getErrorMessage(ErrorCode.INVALID_INPUT),
+        message: err?.issues,
+      },
     });
   }
 
@@ -128,7 +153,10 @@ export const signup = async (req: Request, res: Response) => {
     const { username, password, name } = req.body;
     if (!username || !password || !name) {
       return res.status(400).json({
+        success: false,
         errors: {
+          error_code: ErrorCode.INVALID_INPUT,
+          error_message: getErrorMessage(ErrorCode.INVALID_INPUT),
           message: "Please fill your username address, password and name",
         },
       });
@@ -142,8 +170,11 @@ export const signup = async (req: Request, res: Response) => {
 
     if (user) {
       return res.status(400).json({
+        success: false,
         errors: {
-          message: "User already exists",
+          error_code: ErrorCode.FAILED_CREATE,
+          error_message: getErrorMessage(ErrorCode.FAILED_CREATE),
+          message: "User alredy exists",
         },
       });
     }
@@ -158,13 +189,18 @@ export const signup = async (req: Request, res: Response) => {
     });
 
     return res.status(201).json({
+      success: true,
       data: excludeField(user, ["password"]),
+      message: "User create successfully",
     });
   } catch (err: any) {
     console.log(err);
 
     return res.status(400).json({
+      success: false,
       errors: {
+        error_code: ErrorCode.FAILED_CREATE,
+        error_message: getErrorMessage(ErrorCode.FAILED_CREATE),
         message: err?.message,
       },
     });
@@ -177,7 +213,10 @@ export const refreshToken = async (req: Request, res: Response) => {
     refreshTokenSchema.parse(req.body);
   } catch (err: any) {
     return res.status(400).json({
+      success: false,
       errors: {
+        error_code: ErrorCode.INVALID_INPUT,
+        error_message: getErrorMessage(ErrorCode.INVALID_INPUT),
         message: err?.issues,
       },
     });
@@ -208,8 +247,11 @@ export const refreshToken = async (req: Request, res: Response) => {
 
     if (!user) {
       return res.status(401).json({
+        success: false,
         errors: {
-          message: "Invalid refresh token",
+          error_code: ErrorCode.TOKEN_INVALID,
+          error_message: getErrorMessage(ErrorCode.TOKEN_INVALID),
+          message: "Refresh token is invalid",
         },
       });
     }
@@ -237,14 +279,18 @@ export const refreshToken = async (req: Request, res: Response) => {
     });
 
     return res.status(200).json({
+      success: true,
       data: {
         access_token: newToken,
-        // refresh_token: newRefreshToken,
       },
+      message: "Refresh token successfully",
     });
   } catch (err: any) {
     return res.status(400).json({
+      success: false,
       errors: {
+        error_code: ErrorCode.INVALID_INPUT,
+        error_message: getErrorMessage(ErrorCode.INVALID_INPUT),
         message: err?.message,
       },
     });
@@ -255,9 +301,11 @@ export const refreshToken = async (req: Request, res: Response) => {
 export const me = async (req: Request, res: Response, next: NextFunction) => {
   // @ts-ignore
   res.status(200).json({
+    success: true,
     data:
       // @ts-ignore
       excludeField(req.user, ["password", "refresh_token", "access_token"]),
+    message: "Get user profile success",
   });
 };
 
@@ -267,7 +315,10 @@ export const update = async (req: Request, res: Response) => {
     updateUserSchema.parse(req.body);
   } catch (err: any) {
     return res.status(400).json({
+      success: false,
       errors: {
+        error_code: ErrorCode.NOT_FOUND,
+        error_message: getErrorMessage(ErrorCode.NOT_FOUND),
         message: err?.issues,
       },
     });
@@ -295,11 +346,16 @@ export const update = async (req: Request, res: Response) => {
     });
 
     return res.status(200).json({
+      success: true,
       data: excludeField(user, ["password", "access_token", "refresh_token"]),
+      message: "User update successfully",
     });
   } catch (err: any) {
     return res.status(400).json({
+      success: false,
       errors: {
+        error_code: ErrorCode.INVALID_INPUT,
+        error_message: getErrorMessage(ErrorCode.INVALID_INPUT),
         message: err?.message,
       },
     });

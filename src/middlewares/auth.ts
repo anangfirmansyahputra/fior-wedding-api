@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
 import { prismaClient } from "..";
+import { ErrorCode, getErrorMessage } from "../lib/error-code";
 
 const authMiddleware = async (
   req: Request,
@@ -9,7 +10,6 @@ const authMiddleware = async (
 ) => {
   const path = req.path.substring(1).replace("/", ".");
   const method = req.method.toLowerCase();
-  // const permission = `${path}.${method}`;
   const arrayPath = req.path.substring(1).split("/");
   let newPath: string[] = [];
 
@@ -23,9 +23,8 @@ const authMiddleware = async (
 
   if (
     path === "auth.signup" ||
-    path === "auth.login"
-    // || path === "roles" ||
-    // path === "permissions"
+    path === "auth.login" ||
+    path === "auth.refresh-token"
   ) {
     return next();
   }
@@ -34,8 +33,11 @@ const authMiddleware = async (
 
   if (!access_token) {
     return res.status(401).json({
+      success: false,
       errors: {
-        message: "Unauthorized",
+        error_code: ErrorCode.TOKEN_NOT_PROVIDED,
+        error_message: getErrorMessage(ErrorCode.TOKEN_NOT_PROVIDED),
+        message: "Token not provided",
       },
     });
   }
@@ -51,18 +53,22 @@ const authMiddleware = async (
       if (currentTime >= expirationTime) {
         console.log("Token telah kedaluwarsa");
         return res.status(401).json({
+          success: false,
           errors: {
+            error_code: ErrorCode.TOKEN_EXPIRED,
+            error_message: getErrorMessage(ErrorCode.TOKEN_EXPIRED),
             message: "Token is expired",
           },
         });
       } else {
         // @ts-ignore
         const permissions = decodedToken.payload?.permissions;
-        // console.log("Token masih berlaku");
-
         if (!permissions.includes(permission)) {
           return res.status(403).json({
+            success: false,
             errors: {
+              error_code: ErrorCode.ACCESS_DENIED,
+              error_message: getErrorMessage(ErrorCode.ACCESS_DENIED),
               message: "This account has no permissions",
             },
           });
@@ -92,8 +98,11 @@ const authMiddleware = async (
 
     if (!user) {
       return res.status(401).json({
+        success: false,
         errors: {
-          message: "Unauthorized",
+          error_code: ErrorCode.NOT_FOUND,
+          error_message: getErrorMessage(ErrorCode.NOT_FOUND),
+          message: "User not found",
         },
       });
     }
@@ -103,8 +112,11 @@ const authMiddleware = async (
     return next();
   } catch (err) {
     return res.status(401).json({
+      success: false,
       errors: {
-        message: "Unauthorized",
+        error_code: ErrorCode.TOKEN_INVALID,
+        error_message: getErrorMessage(ErrorCode.TOKEN_INVALID),
+        message: "Invalid Token",
       },
     });
   }
