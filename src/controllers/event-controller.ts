@@ -1,13 +1,19 @@
 import { Request, Response } from "express";
-import { eventCreateSchema, eventUpdateSchema } from "../schema/event";
-import { exclude, prismaClient } from "..";
+import { prismaClient } from "..";
+import { ErrorCode, getErrorMessage } from "../lib/error-code";
+import { eventSchema, eventUpdateSchema } from "../schema/event";
 
 export const create = async (req: Request, res: Response) => {
   try {
-    eventCreateSchema.parse(req.body);
+    eventSchema.parse(req.body);
   } catch (err: any) {
     return res.status(400).json({
-      errors: err?.issues,
+      success: false,
+      errors: {
+        error_code: ErrorCode.INVALID_INPUT,
+        error_mesage: getErrorMessage(ErrorCode.INVALID_INPUT),
+        message: err?.issues,
+      },
     });
   }
 
@@ -20,25 +26,42 @@ export const create = async (req: Request, res: Response) => {
 
     if (!customer) {
       return res.status(404).json({
+        success: false,
         errors: {
+          error_code: ErrorCode.NOT_FOUND,
+          error_mesage: getErrorMessage(ErrorCode.NOT_FOUND),
           message: "Customer not found",
         },
       });
     }
 
     const event = await prismaClient.event.create({
-      data: req.body,
+      data: {
+        customer_id: req.body.customer_id,
+        client_name: req.body.client_name,
+        estimate_guest: req.body.estimate_guest,
+        guest_arrival: req.body.guest_arrival,
+        guest_departure: req.body.guest_departure,
+        venue_address: req.body.venue_address,
+        venue_name: req.body.venue_name,
+        archive: req.body.archive,
+      },
     });
 
     return res.status(201).json({
+      success: true,
       data: event,
+      message: "Event create successfully",
     });
   } catch (err: any) {
     console.log(err);
 
-    return res.status(400).json({
+    return res.status(500).json({
+      success: false,
       errors: {
-        message: err?.message,
+        error_code: ErrorCode.INTERNAL_SERVER_ERROR,
+        error_mesage: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
+        message: "Internal server error",
       },
     });
   }
@@ -59,12 +82,15 @@ export const get = async (req: Request, res: Response) => {
     });
 
     return res.status(200).json({
+      success: true,
       data: events,
     });
   } catch (err) {
-    console.log(err);
     return res.status(500).json({
+      success: false,
       errors: {
+        error_code: ErrorCode.INTERNAL_SERVER_ERROR,
+        error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
         message: "Internal server error",
       },
     });
@@ -81,19 +107,25 @@ export const find = async (req: Request, res: Response) => {
 
     if (!event) {
       return res.status(404).json({
+        success: false,
         errors: {
+          error_code: ErrorCode.NOT_FOUND,
+          error_message: getErrorMessage(ErrorCode.NOT_FOUND),
           message: "Event not found",
         },
       });
     }
 
     return res.status(200).json({
+      success: true,
       data: event,
     });
   } catch (err: any) {
-    console.log(err);
     return res.status(500).json({
+      success: false,
       errors: {
+        error_code: ErrorCode.INTERNAL_SERVER_ERROR,
+        error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
         message: "Internal server error",
       },
     });
@@ -102,10 +134,15 @@ export const find = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   try {
-    eventUpdateSchema.parse(req.body);
+    eventSchema.parse(req.body);
   } catch (err: any) {
     return res.status(400).json({
-      errors: err?.issues,
+      success: false,
+      errors: {
+        error_code: ErrorCode.INVALID_INPUT,
+        error_message: getErrorMessage(ErrorCode.INVALID_INPUT),
+        message: err?.issues,
+      },
     });
   }
 
@@ -118,28 +155,43 @@ export const update = async (req: Request, res: Response) => {
 
     if (!event) {
       return res.status(404).json({
+        success: false,
         errors: {
+          error_code: ErrorCode.NOT_FOUND,
+          error_message: getErrorMessage(ErrorCode.NOT_FOUND),
           message: "Event not found",
         },
       });
     }
 
-    const { customer_id, ...payload } = req.body;
-
     const updateEvent = await prismaClient.event.update({
       where: {
         id: req.params.id,
       },
-      data: payload,
+      data: {
+        customer_id: req.body.customer_id,
+        client_name: req.body.client_name,
+        estimate_guest: req.body.estimate_guest,
+        guest_arrival: req.body.guest_arrival,
+        guest_departure: req.body.guest_departure,
+        venue_address: req.body.venue_address,
+        venue_name: req.body.venue_name,
+        archive: req.body.archive,
+      },
     });
 
     return res.status(200).json({
+      success: true,
       data: updateEvent,
+      message: "Event updated successfully",
     });
   } catch (err: any) {
-    return res.status(400).json({
+    return res.status(500).json({
+      success: false,
       errors: {
-        message: err?.message,
+        error_code: ErrorCode.INTERNAL_SERVER_ERROR,
+        error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
+        message: "Internal server error",
       },
     });
   }
@@ -155,7 +207,10 @@ export const deleteEvent = async (req: Request, res: Response) => {
 
     if (!event) {
       return res.status(404).json({
+        success: false,
         errors: {
+          error_code: ErrorCode.INTERNAL_SERVER_ERROR,
+          error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
           message: "Event not found",
         },
       });
@@ -171,7 +226,10 @@ export const deleteEvent = async (req: Request, res: Response) => {
   } catch (err) {
     console.log(err);
     return res.status(500).json({
+      success: false,
       errors: {
+        error_code: ErrorCode.INTERNAL_SERVER_ERROR,
+        error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
         message: "Internal server error",
       },
     });

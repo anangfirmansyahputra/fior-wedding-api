@@ -72,7 +72,7 @@ export const login = async (req: Request, res: Response) => {
         permissions: user.role.permissions,
       },
       process.env.JWT_ACCESS_SECRET_KEY!,
-      { expiresIn: 30 }
+      { expiresIn: "7d" }
     );
 
     const refresh_token = jwt.sign(
@@ -92,11 +92,16 @@ export const login = async (req: Request, res: Response) => {
       },
     });
 
+    const data = {
+      ...user,
+      role: user.role.name,
+    };
+
     return res.status(200).json({
       // @ts-ignore
       success: true,
       data: {
-        ...excludeField(user, ["password", "role_id"]),
+        ...excludeField(data, ["password", "role_id"]),
         access_token,
         refresh_token,
       },
@@ -262,19 +267,12 @@ export const refreshToken = async (req: Request, res: Response) => {
       { expiresIn: "7d" }
     );
 
-    // const newRefreshToken = jwt.sign(
-    //   { id: user.id },
-    //   process.env.JWT_REFRESH_SECRET_KEY!,
-    //   { expiresIn: "6h" }
-    // );
-
     await prismaClient.user.update({
       where: {
         id: decoded.id,
       },
       data: {
         access_token: newToken,
-        // refresh_token: newRefreshToken,
       },
     });
 
@@ -300,11 +298,18 @@ export const refreshToken = async (req: Request, res: Response) => {
 // Me
 export const me = async (req: Request, res: Response, next: NextFunction) => {
   // @ts-ignore
+  const data = {
+    // @ts-ignore
+    ...req.user,
+    // @ts-ignore
+    role: req.user.role.name,
+  };
+
   res.status(200).json({
     success: true,
     data:
       // @ts-ignore
-      excludeField(req.user, ["password", "refresh_token", "access_token"]),
+      excludeField(data, ["password", "refresh_token", "access_token"]),
     message: "Get user profile success",
   });
 };

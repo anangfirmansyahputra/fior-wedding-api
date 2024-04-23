@@ -43,25 +43,6 @@ model Role {
   @@map("roles")
 }
 
-// model RolePermission {
-//   id            String @id @default(uuid())
-//   role_id       String
-//   permission_id Int
-
-//   role       Role       @relation(fields: [role_id], references: [id])
-//   permission Permission @relation(fields: [permission_id], references: [id])
-
-//   @@map("role_permissions")
-// }
-
-// model Permission {
-//   id               Int              @id
-//   name             String           @unique
-//   role_permissions RolePermission[]
-
-//   @@map("permissions")
-// }
-
 model Customer {
   id      String @id @default(uuid())
   user_id String
@@ -137,13 +118,17 @@ model Cities {
 model Event {
   id String @id @default(uuid())
 
-  customer_id       String
-  event_name        String
-  event_description String?     @db.Text
-  start_date        DateTime
-  end_date          DateTime
-  location          String      @db.Text
-  status            EventStatus @default(SCHEDULED)
+  customer_id    String
+  client_name    String
+  estimate_guest Int
+
+  guest_arrival   DateTime
+  guest_departure DateTime
+  venue_name      String
+  venue_address   String   @db.Text
+  archive         Boolean  @default(false)
+
+  // status EventStatus @default(SCHEDULED)
 
   customer            Customer            @relation(fields: [customer_id], references: [id], onDelete: Cascade)
   event_vendor        EventVendor[]
