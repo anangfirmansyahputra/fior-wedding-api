@@ -1,53 +1,73 @@
 // import { prismaClient } from "../index";
 const { PrismaClient } = require("@prisma/client");
+const { compareSync, hashSync } = require("bcrypt");
 
 const prisma = new PrismaClient();
 
-const permissionData = [
-  { id: 1, name: "customer.create" },
-  { id: 2, name: "customer.update" },
-  { id: 3, name: "customer.read" },
-  { id: 4, name: "customer.delete" },
-  { id: 5, name: "event.create" },
-  { id: 6, name: "event.update" },
-  { id: 7, name: "event.read" },
-  { id: 8, name: "event.delete" },
-];
-
 async function main() {
   try {
-    await prisma.role.createMany({
+    await prisma.user.deleteMany();
+    await prisma.role.deleteMany();
+    await prisma.permission.deleteMany();
+
+    const createPermissions = await prisma.permission.createMany({
       data: [
         {
-          name: "ADMIN",
-          permissions: [
-            "create_customer",
-            "read_customer",
-            "update_record",
-            "delete_record",
-            "create_event",
-            "read_event",
-            "update_event",
-            "delete_event",
-            "create_customer_biodata",
-            "read_customer_biodata",
-            "update_customer_biodata",
-            "delete_customer_biodata",
-          ],
+          name: "Read Customer",
+          name_code: "read_customer",
         },
         {
-          name: "CUSTOMER",
-          permissions: [
-            "create_event",
-            "read_event",
-            "update_event",
-            "delete_event",
-          ],
+          name: "Update Customer",
+          name_code: "update_customer",
+        },
+        {
+          name: "Delete Customer",
+          name_code: "delete_customer",
+        },
+        {
+          name: "Create Event",
+          name_code: "create_event",
+        },
+        {
+          name: "Read Event",
+          name_code: "read_event",
+        },
+        {
+          name: "Update Event",
+          name_code: "update_event",
+        },
+        {
+          name: "Delete Event",
+          name_code: "delete_event",
         },
       ],
     });
 
-    console.log("Seed role success");
+    const permissions = await prisma.permission.findMany({});
+
+    const role = await prisma.role.create({
+      data: {
+        name: "Super Admin",
+      },
+    });
+
+    const rolePermission = await prisma.rolePermission.createMany({
+      data: permissions.map((permission) => ({
+        role_id: role.id,
+        permission_id: permission.id,
+      })),
+    });
+
+    const user = await prisma.user.create({
+      data: {
+        username: "admin123",
+        password: hashSync("rahasia", 10),
+        name: "Admin",
+        role_id: role.id,
+      },
+    });
+
+    return console.log(user);
   } catch (err) {
     console.log(err);
   }

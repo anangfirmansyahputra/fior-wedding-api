@@ -29,14 +29,24 @@ model User {
   created_at   DateTime     @default(now())
   updated_at   DateTime     @updatedAt
   vendor_notes VendorNote[]
+  user_event   UserEvent[]
 
   @@map("users")
 }
 
+model UserEvent {
+  id String @id @default(uuid())
+
+  user_id  String
+  event_id String
+
+  user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [event_id], references: [id], onDelete: Cascade)
+}
+
 model Role {
-  id    String  @id @default(uuid())
-  name  String  @unique
-  super Boolean @default(false)
+  id   String @id @default(uuid())
+  name String @unique
 
   user        User[]
   permissions RolePermission[]
@@ -61,39 +71,69 @@ model Permission {
   name_code String @unique
 
   role_permissions RolePermission[]
+
+  @@map("permissions")
 }
 
 model Customer {
-  id      String @id @default(uuid())
-  user_id String
+  id String @id @default(uuid())
 
-  user             User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  username String
+  password String
+
   customer_biodata CustomerBiodata[]
   event            Event[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  User       User?    @relation(fields: [userId], references: [id])
+  userId     String?
 
   @@map("customers")
 }
 
 model CustomerBiodata {
-  id           String    @id @default(uuid())
-  first_name   String
-  last_name    String?
-  email        String
-  phone_number String
-  address      String
-  gender       Gender
-  birthday     DateTime?
+  id String @id @default(uuid())
 
-  customer Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  client_name        String
+  phone_number       String
+  address            String         @db.Text
+  venue              VenueStatus
+  total_pax          Int
+  total_invitation   Int
+  budget_estimations Int
+  attendance_type    AttendanceType
+  holly_matrimony    HolyMatrimony
+  resepsion          Boolean
+  seat_status        SeatStatus
+  tradition          Adat
+  occasion_type      OccasionType
+  customer_id        String
+  note               String?        @db.Text
 
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  customer_id String
+  customer              Customer              @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  customer_biodata_role CustomerBiodataRole[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("customer_biodatas")
+}
+
+model CustomerBiodataRole {
+  id                  String          @id @default(uuid())
+  status_participant  String
+  mother_name         String
+  father_name         String
+  trustee             String?
+  sibling             String?
+  other               String?
+  wedding_role_name   String?
+  customer_biodata_id String
+  customer_biodata    CustomerBiodata @relation(fields: [customer_biodata_id], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model VendorCategory {
@@ -139,7 +179,7 @@ model Cities {
 model Event {
   id String @id @default(uuid())
 
-  customer_id    String
+  customer_id    String?
   client_name    String
   estimate_guest Int
 
@@ -149,9 +189,7 @@ model Event {
   venue_address   String   @db.Text
   archive         Boolean  @default(false)
 
-  // status EventStatus @default(SCHEDULED)
-
-  customer            Customer            @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  customer            Customer?           @relation(fields: [customer_id], references: [id], onDelete: Cascade)
   event_vendor        EventVendor[]
   event_payment       EventPayment[]
   event_tasK_timeline EventTaskTimeline[]
@@ -162,8 +200,9 @@ model Event {
   event_guest_seat    EventGuestSeat[]
   event_room_list     EventRoomList[]
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+  UserEvent  UserEvent[]
 
   @@map("events")
 }
@@ -360,4 +399,39 @@ model VendorNote {
   vendor Vendor @relation(fields: [vendor_id], references: [id], onDelete: Cascade)
 
   @@map("vendor_notes")
+}
+
+enum VenueStatus {
+  INDOOR
+  OUTDOOR
+}
+
+enum AttendanceType {
+  HALF_DAY
+  FULL_DAY
+}
+
+enum HolyMatrimony {
+  AKAD_NIKAH
+  KATOLIK
+  BUDHA
+  KRISTEN
+  HINDU
+}
+
+enum SeatStatus {
+  SEATING
+  STANDING
+}
+
+enum Adat {
+  INTERNATIONAL
+  TRADITIONAL_JAWA
+  TRADITIONAL_SUNDA
+  ETC
+}
+
+enum OccasionType {
+  COCKTAIL
+  AFTER_PARTY
 }
