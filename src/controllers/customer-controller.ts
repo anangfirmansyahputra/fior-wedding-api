@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prismaClient, exclude } from "..";
+import { User } from "@prisma/client";
 
 // Create
 export const create = async (req: Request, res: Response) => {
@@ -26,20 +27,37 @@ export const create = async (req: Request, res: Response) => {
 // Get
 export const gets = async (req: Request, res: Response) => {
   try {
-    const customers = await prismaClient.customer.findMany({
-      where: {
-        // @ts-ignore
-        user_id: req.user.id,
-      },
-      include: {
-        customer_biodata: {
-          select: exclude("customerBiodata", ["customer_id"]),
+    // @ts-ignore
+    const me = req.user;
+    let customers;
+
+    if (me?.role?.super === true) {
+      customers = await prismaClient.customer.findMany({
+        include: {
+          customer_biodata: {
+            select: exclude("customerBiodata", ["customer_id"]),
+          },
+          event: {
+            select: exclude("event", ["customer_id"]),
+          },
         },
-        event: {
-          select: exclude("event", ["customer_id"]),
+      });
+    } else {
+      customers = await prismaClient.customer.findMany({
+        where: {
+          // @ts-ignore
+          user_id: req.user.id,
         },
-      },
-    });
+        include: {
+          customer_biodata: {
+            select: exclude("customerBiodata", ["customer_id"]),
+          },
+          event: {
+            select: exclude("event", ["customer_id"]),
+          },
+        },
+      });
+    }
 
     return res.status(200).json({
       data: customers,
@@ -58,13 +76,26 @@ export const gets = async (req: Request, res: Response) => {
 // Find
 export const find = async (req: Request, res: Response) => {
   try {
-    const customer = await prismaClient.customer.findUnique({
-      where: {
-        id: req.params.id,
-        // @ts-ignore
-        user_id: req.user.id,
-      },
-    });
+    // @ts-ignore
+    const me = req.user;
+    let customer;
+
+    if (me?.role?.super === true) {
+      customer = await prismaClient.customer.findUnique({
+        where: {
+          id: req.params.id,
+          // @ts-ignore
+        },
+      });
+    } else {
+      customer = await prismaClient.customer.findUnique({
+        where: {
+          id: req.params.id,
+          // @ts-ignore
+          user_id: req.user.id,
+        },
+      });
+    }
 
     if (!customer) {
       return res.status(404).json({
@@ -89,13 +120,26 @@ export const find = async (req: Request, res: Response) => {
 // Delete
 export const deleteCustomer = async (req: Request, res: Response) => {
   try {
-    const customer = await prismaClient.customer.findUnique({
-      where: {
-        id: req.params.id,
-        // @ts-ignore
-        user_id: req.user.id,
-      },
-    });
+    // @ts-ignore
+    const me = req.user;
+    let customer;
+
+    if (me?.role?.super === true) {
+      customer = await prismaClient.customer.findUnique({
+        where: {
+          id: req.params.id,
+          // @ts-ignore
+        },
+      });
+    } else {
+      customer = await prismaClient.customer.findUnique({
+        where: {
+          id: req.params.id,
+          // @ts-ignore
+          user_id: req.user.id,
+        },
+      });
+    }
 
     if (!customer) {
       return res.status(404).json({

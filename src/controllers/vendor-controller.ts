@@ -2,6 +2,8 @@ import axios from "axios";
 import { Request, Response } from "express";
 import { prismaClient } from "..";
 import { createPagination } from "../lib/utils";
+import { Prisma } from "@prisma/client";
+import { ErrorCode, getErrorMessage } from "../lib/error-code";
 
 export const scrappingVendor = async (req: Request, res: Response) => {
   try {
@@ -133,5 +135,33 @@ export const getVendors = async (req: Request, res: Response) => {
         message: "Internal server error",
       },
     });
+  }
+};
+
+export const create = async (req: Request, res: Response) => {
+  try {
+  } catch (e: any) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2002") {
+        console.log(e.name);
+        return res.status(400).json({
+          success: false,
+          errors: {
+            error_code: ErrorCode.INVALID_INPUT,
+            error_message: getErrorMessage(ErrorCode.INVALID_INPUT),
+            message: e.message,
+          },
+        });
+      }
+    } else {
+      return res.status(500).json({
+        success: false,
+        errors: {
+          error_code: ErrorCode.INTERNAL_SERVER_ERROR,
+          error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
+          message: "Internal server error",
+        },
+      });
+    }
   }
 };

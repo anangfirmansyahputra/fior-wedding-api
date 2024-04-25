@@ -65,6 +65,7 @@ export const create = async (req: Request, res: Response) => {
       prismaClient.role.create({
         data: {
           name,
+          super: req.body.super ?? false,
         },
       }),
     ]);
@@ -168,7 +169,7 @@ export const update = async (req: Request, res: Response) => {
       });
     }
 
-    const [rolePermissionDelete, rolePermissions] =
+    const [rolePermissionDelete, rolePermissions, updateRole] =
       await prismaClient.$transaction([
         prismaClient.rolePermission.deleteMany({
           where: {
@@ -180,6 +181,15 @@ export const update = async (req: Request, res: Response) => {
             role_id: role.id,
             permission_id: permission,
           })),
+        }),
+        prismaClient.role.update({
+          where: {
+            id: role.id,
+          },
+          data: {
+            name,
+            super: req.body.super ?? false,
+          },
         }),
       ]);
 

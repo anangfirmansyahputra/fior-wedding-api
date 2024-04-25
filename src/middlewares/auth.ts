@@ -5,27 +5,6 @@ import { ErrorCode, getErrorMessage } from "../lib/error-code";
 
 const authMiddleware = (permission?: string) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    // const path = req.path.substring(1).replace("/", ".");
-    // const method = req.method.toLowerCase();
-    // const arrayPath = req.path.substring(1).split("/");
-    // let newPath: string[] = [];
-
-    // arrayPath.forEach((w: string) => {
-    //   if (w.length !== 36) {
-    //     newPath.push(w);
-    //   }
-    // });
-
-    // const permission = `${newPath.join(".")}.${method}`;
-
-    // if (
-    //   path === "auth.signup" ||
-    //   path === "auth.login" ||
-    //   path === "auth.refresh-token"
-    // ) {
-    //   return next();
-    // }
-
     const access_token = req.headers.authorization;
 
     if (!access_token) {
@@ -87,8 +66,6 @@ const authMiddleware = (permission?: string) => {
           },
         });
       }
-
-      console.log(permissions);
 
       if (!permission) {
         // @ts-ignore

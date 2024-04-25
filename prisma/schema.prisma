@@ -33,12 +33,11 @@ model User {
 }
 
 model Role {
-  id   String @id @default(uuid())
-  name String @unique
+  id    String  @id @default(uuid())
+  name  String  @unique
+  super Boolean @default(false)
 
   user        User[]
-  // permissions    String[]
-  // role_permissions RolePermission[]
   permissions RolePermission[]
 
   @@map("roles")
