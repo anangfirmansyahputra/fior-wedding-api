@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { prismaClient } from "..";
 import { ErrorCode, getErrorMessage } from "../lib/error-code";
-import { eventSchema, eventUpdateSchema } from "../schema/event";
+import { eventSchema } from "../schema/event";
+import { Prisma } from "@prisma/client";
 
 export const create = async (req: Request, res: Response) => {
   try {
@@ -18,26 +19,8 @@ export const create = async (req: Request, res: Response) => {
   }
 
   try {
-    const customer = await prismaClient.customer.findFirst({
-      where: {
-        id: req.body.customer_id,
-      },
-    });
-
-    if (!customer) {
-      return res.status(404).json({
-        success: false,
-        errors: {
-          error_code: ErrorCode.NOT_FOUND,
-          error_mesage: getErrorMessage(ErrorCode.NOT_FOUND),
-          message: "Customer not found",
-        },
-      });
-    }
-
     const event = await prismaClient.event.create({
       data: {
-        customer_id: req.body.customer_id,
         client_name: req.body.client_name,
         estimate_guest: req.body.estimate_guest,
         guest_arrival: req.body.guest_arrival,
@@ -53,23 +36,42 @@ export const create = async (req: Request, res: Response) => {
       data: event,
       message: "Event create successfully",
     });
-  } catch (err: any) {
-    console.log(err);
+  } catch (e: any) {
+    console.log(e);
 
-    return res.status(500).json({
-      success: false,
-      errors: {
-        error_code: ErrorCode.INTERNAL_SERVER_ERROR,
-        error_mesage: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
-        message: "Internal server error",
-      },
-    });
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2002") {
+        console.log(e.name);
+        return res.status(400).json({
+          success: false,
+          errors: {
+            error_code: ErrorCode.INVALID_INPUT,
+            error_message: getErrorMessage(ErrorCode.INVALID_INPUT),
+            message: e.message,
+          },
+        });
+      }
+    } else {
+      return res.status(500).json({
+        success: false,
+        errors: {
+          error_code: ErrorCode.INTERNAL_SERVER_ERROR,
+          error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
+          message: "Internal server error",
+        },
+      });
+    }
   }
 };
 
 export const get = async (req: Request, res: Response) => {
   try {
+    // @ts-ignore
+    const isAdmin = req.user.role.name === "Super Admin";
+
     const events = await prismaClient.event.findMany({
+      // @ts-ignore
+      where: isAdmin ? {} : { customer_id: req.user.id },
       include: {
         event_vendor: {
           include: {
@@ -86,6 +88,8 @@ export const get = async (req: Request, res: Response) => {
       data: events,
     });
   } catch (err) {
+    console.log(err);
+
     return res.status(500).json({
       success: false,
       errors: {
@@ -99,10 +103,19 @@ export const get = async (req: Request, res: Response) => {
 
 export const find = async (req: Request, res: Response) => {
   try {
+    // @ts-ignore
+    const isAdmin = req.user.role.name === "Super Admin";
+
     const event = await prismaClient.event.findFirst({
-      where: {
-        id: req.params.id,
-      },
+      where: isAdmin
+        ? {
+            id: req.params.id,
+          }
+        : {
+            id: req.params.id,
+            // @ts-ignore
+            customer_id: req.user.id,
+          },
     });
 
     if (!event) {
@@ -147,10 +160,19 @@ export const update = async (req: Request, res: Response) => {
   }
 
   try {
+    // @ts-ignore
+    const isAdmin = req.user.role.name === "Super Admin";
+
     const event = await prismaClient.event.findFirst({
-      where: {
-        id: req.params.id,
-      },
+      where: isAdmin
+        ? {
+            id: req.params.id,
+          }
+        : {
+            id: req.params.id,
+            // @ts-ignore
+            customer_id: req.user.id,
+          },
     });
 
     if (!event) {
@@ -169,7 +191,6 @@ export const update = async (req: Request, res: Response) => {
         id: req.params.id,
       },
       data: {
-        customer_id: req.body.customer_id,
         client_name: req.body.client_name,
         estimate_guest: req.body.estimate_guest,
         guest_arrival: req.body.guest_arrival,
@@ -185,24 +206,47 @@ export const update = async (req: Request, res: Response) => {
       data: updateEvent,
       message: "Event updated successfully",
     });
-  } catch (err: any) {
-    return res.status(500).json({
-      success: false,
-      errors: {
-        error_code: ErrorCode.INTERNAL_SERVER_ERROR,
-        error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
-        message: "Internal server error",
-      },
-    });
+  } catch (e: any) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2002") {
+        console.log(e.name);
+        return res.status(400).json({
+          success: false,
+          errors: {
+            error_code: ErrorCode.INVALID_INPUT,
+            error_message: getErrorMessage(ErrorCode.INVALID_INPUT),
+            message: e.message,
+          },
+        });
+      }
+    } else {
+      return res.status(500).json({
+        success: false,
+        errors: {
+          error_code: ErrorCode.INTERNAL_SERVER_ERROR,
+          error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
+          message: "Internal server error",
+        },
+      });
+    }
   }
 };
 
 export const deleteEvent = async (req: Request, res: Response) => {
   try {
+    // @ts-ignore
+    const isAdmin = req.user.role.name === "Super Admin";
+
     const event = await prismaClient.event.findFirst({
-      where: {
-        id: req.params.id,
-      },
+      where: isAdmin
+        ? {
+            id: req.params.id,
+          }
+        : {
+            id: req.params.id,
+            // @ts-ignore
+            customer_id: req.user.id,
+          },
     });
 
     if (!event) {

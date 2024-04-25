@@ -31,14 +31,13 @@ export const get = async (req: Request, res: Response) => {
 export const create = async (req: Request, res: Response) => {
   const { name, permissions } = req.body;
 
-  if (!permissions || permissions.length === 0) {
+  if (!permissions) {
     return res.status(400).json({
       success: false,
       errors: {
         error_code: ErrorCode.INVALID_INPUT,
         error_message: getErrorMessage(ErrorCode.INVALID_INPUT),
-        message:
-          "Permissions is required and must contain at least 1 permission",
+        message: "Permissions is required",
       },
     });
   }
@@ -65,7 +64,6 @@ export const create = async (req: Request, res: Response) => {
       prismaClient.role.create({
         data: {
           name,
-          super: req.body.super ?? false,
         },
       }),
     ]);
@@ -188,7 +186,6 @@ export const update = async (req: Request, res: Response) => {
           },
           data: {
             name,
-            super: req.body.super ?? false,
           },
         }),
       ]);

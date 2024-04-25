@@ -42,6 +42,8 @@ model UserEvent {
 
   user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
   event Event @relation(fields: [event_id], references: [id], onDelete: Cascade)
+
+  @@map("user_events")
 }
 
 model Role {
@@ -121,7 +123,7 @@ model CustomerBiodata {
 }
 
 model CustomerBiodataRole {
-  id                  String          @id @default(uuid())
+  id                  String                  @id @default(uuid())
   status_participant  String
   mother_name         String
   father_name         String
@@ -130,10 +132,13 @@ model CustomerBiodataRole {
   other               String?
   wedding_role_name   String?
   customer_biodata_id String
-  customer_biodata    CustomerBiodata @relation(fields: [customer_biodata_id], references: [id], onDelete: Cascade)
+  type                CustomerBiodataRoleType
+  customer_biodata    CustomerBiodata         @relation(fields: [customer_biodata_id], references: [id], onDelete: Cascade)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  @@map("customer_biodata_roles")
 }
 
 model VendorCategory {
@@ -434,4 +439,9 @@ enum Adat {
 enum OccasionType {
   COCKTAIL
   AFTER_PARTY
+}
+
+enum CustomerBiodataRoleType {
+  GROOM
+  BRIDE
 }
