@@ -11,13 +11,14 @@ import { vendorCategoryRouter } from "./vendor-category-routes";
 import { vendorRouter } from "./vendor-routes";
 import { roleRoutes } from "./role.router";
 import permissionRouter from "./permission.router";
+import vendorNoteRouter from "./vendor-note.router";
 
 const rootRouter: Router = Router();
 
 rootRouter.use("/auth", authRouter);
 rootRouter.use("/customers", [customerRouter, customerBiodataRouter]);
 rootRouter.use("/vendor-categories", vendorCategoryRouter);
-rootRouter.use("/vendors", vendorRouter);
+rootRouter.use("/vendors", [vendorRouter, vendorNoteRouter]);
 rootRouter.use("/events", [
   eventRouter,
   eventRundownRouter,
@@ -27,4 +28,5 @@ rootRouter.use("/events", [
 ]);
 rootRouter.use("/roles", roleRoutes);
 rootRouter.use("/permissions", permissionRouter);
+
 export default rootRouter;

@@ -26,8 +26,9 @@ model User {
   role     Role       @relation(fields: [role_id], references: [id])
   customer Customer[]
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at   DateTime     @default(now())
+  updated_at   DateTime     @updatedAt
+  vendor_notes VendorNote[]
 
   @@map("users")
 }
@@ -110,7 +111,7 @@ model VendorCategory {
 }
 
 model Vendor {
-  id           Int           @id
+  id           Int           @id @default(autoincrement())
   data         Json
   created_at   DateTime      @default(now())
   updated_at   DateTime      @updatedAt
@@ -118,6 +119,7 @@ model Vendor {
   category     String
   city         String
   event_vendor EventVendor[]
+  note         VendorNote[]
 
   @@map("vendors")
 }
@@ -345,4 +347,17 @@ enum ItemStatus {
 enum Roles {
   ADMIN
   CUSTOMER
+}
+
+model VendorNote {
+  id String @id @default(uuid())
+
+  user_id   String
+  vendor_id Int
+  note      String @db.Text
+
+  user   User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  vendor Vendor @relation(fields: [vendor_id], references: [id], onDelete: Cascade)
+
+  @@map("vendor_notes")
 }
