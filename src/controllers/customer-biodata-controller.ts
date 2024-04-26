@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
 import { prismaClient } from "..";
-import {
-  customerBiodataCreateSchema,
-  customerBiodataUpdateSchema,
-} from "../schema/customer-biodata";
+import { customerBiodataSchema } from "../schema/customer-biodata";
+import { ErrorCode, getErrorMessage } from "../lib/error-code";
+import { Prisma } from "@prisma/client";
 
 // Create
 export const create = async (req: Request, res: Response) => {
@@ -16,30 +15,52 @@ export const create = async (req: Request, res: Response) => {
 
     if (!customer) {
       return res.status(404).json({
+        success: false,
         errors: {
+          error_code: ErrorCode.NOT_FOUND,
+          error_message: getErrorMessage(ErrorCode.NOT_FOUND),
           message: "Customer not found",
         },
       });
     }
 
-    customerBiodataCreateSchema.parse(req.body);
+    customerBiodataSchema.parse(req.body);
   } catch (err: any) {
-    console.log(err);
     return res.status(400).json({
-      errors: err?.issues,
+      success: false,
+      errors: {
+        error_code: ErrorCode.INVALID_INPUT,
+        error_mesage: getErrorMessage(ErrorCode.INVALID_INPUT),
+        message: err?.issues,
+      },
     });
   }
 
   try {
     const customerBiodata = await prismaClient.customerBiodata.create({
       data: {
+        client_name: req.body.client_name,
+        phone_number: req.body.phone_number,
+        address: req.body.address,
+        venue: req.body.venue,
+        total_pax: req.body.total_pax,
+        total_invitation: req.body.total_invitation,
+        budget_estimations: req.body.budget_estimations,
+        attendance_type: req.body.attendance_type,
+        holly_matrimony: req.body.holly_matrimony,
+        resepsion: req.body.resepsion,
+        seat_status: req.body.seat_status,
+        tradition: req.body.tradition,
+        occasion_type: req.body.occasion_type,
         customer_id: req.params.customer_id,
-        ...req.body,
+        note: req.body.note,
       },
     });
 
     return res.status(201).json({
+      success: true,
       data: customerBiodata,
+      message: "Customer created successfully",
     });
   } catch (err: any) {
     return res.status(400).json({
@@ -61,7 +82,10 @@ export const gets = async (req: Request, res: Response) => {
 
     if (!customer) {
       return res.status(404).json({
+        success: false,
         errors: {
+          error_code: ErrorCode.NOT_FOUND,
+          error_message: getErrorMessage(ErrorCode.NOT_FOUND),
           message: "Customer not found",
         },
       });
@@ -74,12 +98,15 @@ export const gets = async (req: Request, res: Response) => {
     });
 
     return res.status(200).json({
+      success: true,
       data: customerBiodatas,
     });
   } catch (err) {
-    console.log(err);
     return res.status(500).json({
+      success: false,
       errors: {
+        error_code: ErrorCode.INTERNAL_SERVER_ERROR,
+        error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
         message: "Internal server error",
       },
     });
@@ -97,7 +124,10 @@ export const find = async (req: Request, res: Response) => {
 
     if (!customer) {
       return res.status(404).json({
+        success: false,
         errors: {
+          error_code: ErrorCode.NOT_FOUND,
+          error_message: getErrorMessage(ErrorCode.NOT_FOUND),
           message: "Customer not found",
         },
       });
@@ -112,18 +142,25 @@ export const find = async (req: Request, res: Response) => {
 
     if (!customerBiodata) {
       return res.status(404).json({
+        success: false,
         errors: {
+          error_code: ErrorCode.NOT_FOUND,
+          error_message: getErrorMessage(ErrorCode.NOT_FOUND),
           message: "Customer biodata not found",
         },
       });
     }
 
     return res.status(200).json({
+      success: true,
       data: customerBiodata,
     });
   } catch (err) {
     return res.status(500).json({
+      success: false,
       errors: {
+        error_code: ErrorCode.INTERNAL_SERVER_ERROR,
+        error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
         message: "Internal server error",
       },
     });
@@ -141,16 +178,24 @@ export const update = async (req: Request, res: Response) => {
 
     if (!customer) {
       return res.status(404).json({
+        success: false,
         errors: {
+          error_code: ErrorCode.NOT_FOUND,
+          error_message: getErrorMessage(ErrorCode.NOT_FOUND),
           message: "Customer not found",
         },
       });
     }
 
-    customerBiodataUpdateSchema.parse(req.body);
+    customerBiodataSchema.parse(req.body);
   } catch (err: any) {
     return res.status(400).json({
-      errors: err?.issues,
+      success: false,
+      errors: {
+        error_code: ErrorCode.INVALID_INPUT,
+        error_mesage: getErrorMessage(ErrorCode.INVALID_INPUT),
+        message: err?.issues,
+      },
     });
   }
 
@@ -164,31 +209,67 @@ export const update = async (req: Request, res: Response) => {
 
     if (!customerBiodata) {
       return res.status(404).json({
+        success: false,
         errors: {
+          error_code: ErrorCode.NOT_FOUND,
+          error_message: getErrorMessage(ErrorCode.NOT_FOUND),
           message: "Customer biodata not found",
         },
       });
     }
-
-    const { customer_id, ...payload } = req.body;
 
     const updateCustomerBiodata = await prismaClient.customerBiodata.update({
       where: {
         id: req.params.id,
         customer_id: req.params.customer_id,
       },
-      data: payload,
+      data: {
+        client_name: req.body.client_name,
+        phone_number: req.body.phone_number,
+        address: req.body.address,
+        venue: req.body.venue,
+        total_pax: req.body.total_pax,
+        total_invitation: req.body.total_invitation,
+        budget_estimations: req.body.budget_estimations,
+        attendance_type: req.body.attendance_type,
+        holly_matrimony: req.body.holly_matrimony,
+        resepsion: req.body.resepsion,
+        seat_status: req.body.seat_status,
+        tradition: req.body.tradition,
+        occasion_type: req.body.occasion_type,
+        customer_id: req.params.customer_id,
+        note: req.body.note,
+      },
     });
 
     return res.status(200).json({
+      success: true,
       data: updateCustomerBiodata,
+      message: "Customer biodata updated successfully",
     });
-  } catch (err: any) {
-    return res.status(400).json({
-      errors: {
-        message: err?.message,
-      },
-    });
+  } catch (e: any) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2002") {
+        console.log(e.name);
+        return res.status(400).json({
+          success: false,
+          errors: {
+            error_code: ErrorCode.INVALID_INPUT,
+            error_message: getErrorMessage(ErrorCode.INVALID_INPUT),
+            message: e.message,
+          },
+        });
+      }
+    } else {
+      return res.status(500).json({
+        success: false,
+        errors: {
+          error_code: ErrorCode.INTERNAL_SERVER_ERROR,
+          error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
+          message: "Internal server error",
+        },
+      });
+    }
   }
 };
 
@@ -203,7 +284,10 @@ export const deleteCustomer = async (req: Request, res: Response) => {
 
     if (!customer) {
       return res.status(404).json({
+        success: false,
         errors: {
+          error_code: ErrorCode.NOT_FOUND,
+          error_message: getErrorMessage(ErrorCode.NOT_FOUND),
           message: "Customer not found",
         },
       });
@@ -218,7 +302,10 @@ export const deleteCustomer = async (req: Request, res: Response) => {
 
     if (!customerBiodata) {
       return res.status(404).json({
+        success: false,
         errors: {
+          error_code: ErrorCode.NOT_FOUND,
+          error_message: getErrorMessage(ErrorCode.NOT_FOUND),
           message: "Customer biodata not found",
         },
       });
@@ -234,11 +321,28 @@ export const deleteCustomer = async (req: Request, res: Response) => {
     return res.status(204).json({
       data: {},
     });
-  } catch (err: any) {
-    return res.status(500).json({
-      errors: {
-        message: "Internal server error",
-      },
-    });
+  } catch (e: any) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2002") {
+        console.log(e.name);
+        return res.status(400).json({
+          success: false,
+          errors: {
+            error_code: ErrorCode.INVALID_INPUT,
+            error_message: getErrorMessage(ErrorCode.INVALID_INPUT),
+            message: e.message,
+          },
+        });
+      }
+    } else {
+      return res.status(500).json({
+        success: false,
+        errors: {
+          error_code: ErrorCode.INTERNAL_SERVER_ERROR,
+          error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
+          message: "Internal server error",
+        },
+      });
+    }
   }
 };

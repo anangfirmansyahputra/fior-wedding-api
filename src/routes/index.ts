@@ -12,6 +12,8 @@ import { vendorRouter } from "./vendor-routes";
 import { roleRoutes } from "./role.router";
 import permissionRouter from "./permission.router";
 import vendorNoteRouter from "./vendor-note.router";
+import checklistHolmatRouter from "./checklist-holmat.router";
+import checklistHolmatItemRouter from "./checklist-holmat-item.router";
 
 const rootRouter: Router = Router();
 
@@ -25,6 +27,8 @@ rootRouter.use("/events", [
   eventPaymentRouter,
   eventGuestSeatRouter,
   eventVendorRouter,
+  checklistHolmatRouter,
+  checklistHolmatItemRouter,
 ]);
 rootRouter.use("/roles", roleRoutes);
 rootRouter.use("/permissions", permissionRouter);

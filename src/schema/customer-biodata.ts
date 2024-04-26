@@ -1,21 +1,30 @@
 import { z } from "zod";
 
-export const customerBiodataCreateSchema = z.object({
-  first_name: z.string().min(3),
-  last_name: z.optional(z.string().min(3)),
-  email: z.string().email(),
-  phone_number: z.string().min(10),
-  address: z.string().min(10),
-  gender: z.enum(["MALE", "FEMALE", "OTHER"]),
-  birthday: z.optional(z.string().datetime()),
-});
-
-export const customerBiodataUpdateSchema = z.object({
-  first_name: z.optional(z.string().min(3)),
-  last_name: z.optional(z.string().min(3)),
-  email: z.optional(z.string().email()),
-  phone_number: z.optional(z.string().min(10)),
-  address: z.optional(z.string().min(10)),
-  gender: z.optional(z.enum(["MALE", "FEMALE", "OTHER"])),
-  birthday: z.optional(z.string().datetime()),
+export const customerBiodataSchema = z.object({
+  client_name: z.string(),
+  phone_number: z.string(),
+  address: z.string(),
+  venue: z.enum(["INDOOR", "OUTDOOR"]),
+  total_pax: z.number(),
+  total_invitation: z.number(),
+  budget_estimations: z.number(),
+  attendance_type: z.enum(["HALF_DAY", "FULL_DAY"]),
+  holly_matrimony: z.enum([
+    "AKAD_NIKAH",
+    "KATOLIK",
+    "BUDHA",
+    "KRISTEN",
+    "HINDU",
+  ]),
+  resepsion: z.boolean(),
+  seat_status: z.enum(["SEATING", "STANDING"]),
+  tradition: z.enum([
+    "INTERNATIONAL",
+    "TRADITIONAL_JAWA",
+    "TRADITIONAL_SUNDA",
+    "ETC",
+  ]),
+  occasion_type: z.enum(["COCKTAIL", "AFTER_PARTY"]),
+  customer_id: z.string(),
+  note: z.optional(z.string()),
 });

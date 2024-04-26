@@ -31,6 +31,14 @@ export const create = async (req: Request, res: Response) => {
       },
     });
 
+    const userEvent = await prismaClient.userEvent.create({
+      data: {
+        event_id: event.id,
+        // @ts-ignore
+        user_id: req.user.id,
+      },
+    });
+
     return res.status(201).json({
       success: true,
       data: event,
@@ -66,22 +74,41 @@ export const create = async (req: Request, res: Response) => {
 
 export const get = async (req: Request, res: Response) => {
   try {
+    let events;
     // @ts-ignore
     const isAdmin = req.user.role.name === "Super Admin";
 
-    const events = await prismaClient.event.findMany({
-      // @ts-ignore
-      where: isAdmin ? {} : { customer_id: req.user.id },
-      include: {
-        event_vendor: {
-          include: {
-            vendor: true,
-          },
+    if (isAdmin) {
+      const userEvent = await prismaClient.userEvent.findMany({
+        where: {
+          // @ts-ignore
+          user_id: req.user.id,
         },
-        event_payment: true,
-        event_guest_seat: true,
-      },
-    });
+        include: {
+          event: true,
+        },
+      });
+
+      const eventFormat = userEvent.map((event) => ({
+        ...event.event,
+      }));
+
+      events = eventFormat;
+    } else {
+      events = await prismaClient.event.findMany({
+        // @ts-ignore
+        where: isAdmin ? {} : { customer_id: req.user.id },
+        include: {
+          event_vendor: {
+            include: {
+              vendor: true,
+            },
+          },
+          event_payment: true,
+          event_guest_seat: true,
+        },
+      });
+    }
 
     return res.status(200).json({
       success: true,

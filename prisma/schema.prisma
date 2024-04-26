@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -23,8 +23,7 @@ model User {
   access_token  String? @db.Text
   refresh_token String? @db.Text
 
-  role     Role       @relation(fields: [role_id], references: [id])
-  customer Customer[]
+  role Role @relation(fields: [role_id], references: [id])
 
   created_at   DateTime     @default(now())
   updated_at   DateTime     @updatedAt
@@ -88,8 +87,6 @@ model Customer {
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  User       User?    @relation(fields: [userId], references: [id])
-  userId     String?
 
   @@map("customers")
 }
@@ -274,15 +271,29 @@ model ChecklistSupport {
 model ChecklistHolmat {
   id String @id @default(uuid())
 
-  event_id      String
-  event         Event      @relation(fields: [event_id], references: [id], onDelete: Cascade)
-  holmat_name   String
-  holmat_status ItemStatus @default(PENDING)
+  event_id String
+  name     String @unique
+
+  event                  Event                 @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  created_at             DateTime              @default(now())
+  updated_at             DateTime              @updatedAt
+  checklist_holmat_items ChecklistHolmatItem[]
+
+  @@map("checklist_holmats")
+}
+
+model ChecklistHolmatItem {
+  id                  String  @id @default(uuid())
+  description         String
+  note                String? @db.Text
+  checklist_holmat_id String
+
+  checklist_holmat ChecklistHolmat @relation(fields: [checklist_holmat_id], references: [id], onDelete: Cascade)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  @@map("checklist_holmats")
+  @@map("checklist_holmat_items")
 }
 
 model EventBudget {
