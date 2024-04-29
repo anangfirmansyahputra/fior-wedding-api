@@ -1,6 +1,5 @@
 import { Router } from "express";
 import authRouter from "./auth-routes";
-import customerBiodataRouter from "./customer-biodata-routes";
 import customerRouter from "./customer-routes";
 import eventGuestSeatRouter from "./event-guest-seat-routes";
 import eventPaymentRouter from "./event-payment-router";
@@ -14,11 +13,13 @@ import permissionRouter from "./permission.router";
 import vendorNoteRouter from "./vendor-note.router";
 import checklistHolmatRouter from "./checklist-holmat.router";
 import checklistHolmatItemRouter from "./checklist-holmat-item.router";
+import collaborator from "./event/collaborator";
+import biodata from "./event/biodata";
 
 const rootRouter: Router = Router();
 
 rootRouter.use("/auth", authRouter);
-rootRouter.use("/customers", [customerRouter, customerBiodataRouter]);
+rootRouter.use("/customers", [customerRouter]);
 rootRouter.use("/vendor-categories", vendorCategoryRouter);
 rootRouter.use("/vendors", [vendorRouter, vendorNoteRouter]);
 rootRouter.use("/events", [
@@ -29,6 +30,8 @@ rootRouter.use("/events", [
   eventVendorRouter,
   checklistHolmatRouter,
   checklistHolmatItemRouter,
+  collaborator,
+  biodata,
 ]);
 rootRouter.use("/roles", roleRoutes);
 rootRouter.use("/permissions", permissionRouter);

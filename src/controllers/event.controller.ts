@@ -31,14 +31,6 @@ export const create = async (req: Request, res: Response) => {
       },
     });
 
-    const userEvent = await prismaClient.userEvent.create({
-      data: {
-        event_id: event.id,
-        // @ts-ignore
-        user_id: req.user.id,
-      },
-    });
-
     return res.status(201).json({
       success: true,
       data: event,
@@ -78,37 +70,31 @@ export const get = async (req: Request, res: Response) => {
     // @ts-ignore
     const isAdmin = req.user.role.name === "Super Admin";
 
-    if (isAdmin) {
-      const userEvent = await prismaClient.userEvent.findMany({
-        where: {
-          // @ts-ignore
-          user_id: req.user.id,
-        },
-        include: {
-          event: true,
-        },
-      });
+    // if (isAdmin) {
+    //   const userEvent = await prismaClient.userEvent.findMany({
+    //     include: {
+    //       event: true,
+    //     },
+    //   });
 
-      const eventFormat = userEvent.map((event) => ({
-        ...event.event,
-      }));
+    //   const eventFormat = userEvent.map((event) => ({
+    //     ...event.event,
+    //   }));
 
-      events = eventFormat;
-    } else {
-      events = await prismaClient.event.findMany({
-        // @ts-ignore
-        where: isAdmin ? {} : { customer_id: req.user.id },
-        include: {
-          event_vendor: {
-            include: {
-              vendor: true,
-            },
-          },
-          event_payment: true,
-          event_guest_seat: true,
-        },
-      });
-    }
+    //   events = eventFormat;
+    // } else {
+    //   const customer = await prismaClient.customer.findFirst({
+    //     where: {
+    //       // @ts-ignore
+    //       id: req.user.customer_id,
+    //     },
+    //     include: {
+    //       event: true,
+    //     },
+    //   });
+
+    //   events = [customer?.event];
+    // }
 
     return res.status(200).json({
       success: true,
@@ -132,18 +118,22 @@ export const find = async (req: Request, res: Response) => {
   try {
     // @ts-ignore
     const isAdmin = req.user.role.name === "Super Admin";
+    let event;
 
-    const event = await prismaClient.event.findFirst({
-      where: isAdmin
-        ? {
-            id: req.params.id,
-          }
-        : {
-            id: req.params.id,
-            // @ts-ignore
-            customer_id: req.user.id,
-          },
-    });
+    if (isAdmin) {
+      event = await prismaClient.event.findFirst({
+        where: {
+          id: req.params.id,
+        },
+      });
+    } else {
+      const customer = await prismaClient.customer.findFirst({
+        where: {
+          // @ts-ignore
+          id: req.user.customer_id,
+        },
+      });
+    }
 
     if (!event) {
       return res.status(404).json({
@@ -189,18 +179,24 @@ export const update = async (req: Request, res: Response) => {
   try {
     // @ts-ignore
     const isAdmin = req.user.role.name === "Super Admin";
+    let event;
 
-    const event = await prismaClient.event.findFirst({
-      where: isAdmin
-        ? {
-            id: req.params.id,
-          }
-        : {
-            id: req.params.id,
-            // @ts-ignore
-            customer_id: req.user.id,
-          },
-    });
+    if (isAdmin) {
+      event = await prismaClient.event.findFirst({
+        where: {
+          id: req.params.id,
+        },
+      });
+    } else {
+      const customer = await prismaClient.customer.findFirst({
+        where: {
+          // @ts-ignore
+          id: req.user.customer_id,
+        },
+      });
+
+      event = customer;
+    }
 
     if (!event) {
       return res.status(404).json({
@@ -262,18 +258,10 @@ export const update = async (req: Request, res: Response) => {
 export const deleteEvent = async (req: Request, res: Response) => {
   try {
     // @ts-ignore
-    const isAdmin = req.user.role.name === "Super Admin";
-
     const event = await prismaClient.event.findFirst({
-      where: isAdmin
-        ? {
-            id: req.params.id,
-          }
-        : {
-            id: req.params.id,
-            // @ts-ignore
-            customer_id: req.user.id,
-          },
+      where: {
+        id: req.params.id,
+      },
     });
 
     if (!event) {

@@ -13,6 +13,10 @@ async function main() {
     const createPermissions = await prisma.permission.createMany({
       data: [
         {
+          name: "Create Customer",
+          name_code: "create_customer",
+        },
+        {
           name: "Read Customer",
           name_code: "read_customer",
         },
@@ -39,6 +43,22 @@ async function main() {
         {
           name: "Delete Event",
           name_code: "delete_event",
+        },
+        {
+          name: "Create Customer Biodata",
+          name_code: "create_customer_biodata",
+        },
+        {
+          name: "Read Customer Biodata",
+          name_code: "read_customer_biodata",
+        },
+        {
+          name: "Update Customer Biodata",
+          name_code: "update_customer_biodata",
+        },
+        {
+          name: "Delete Customer Biodata",
+          name_code: "delete_customer_biodata",
         },
       ],
     });
@@ -67,7 +87,35 @@ async function main() {
       },
     });
 
-    return console.log(user);
+    const customer = await prisma.role.create({
+      data: {
+        name: "Customer",
+      },
+    });
+
+    const p = await prisma.permission.findFirst({
+      where: {
+        name_code: "read_customer",
+      },
+    });
+
+    const per = await prisma.rolePermission.create({
+      data: {
+        role_id: customer.id,
+        permission_id: p.id,
+      },
+    });
+
+    await prisma.user.create({
+      data: {
+        username: "customer123",
+        password: hashSync("rahasia", 10),
+        name: "Customer",
+        role_id: customer.id,
+      },
+    });
+
+    return console.log("Seeder successfully created");
   } catch (err) {
     console.log(err);
   }

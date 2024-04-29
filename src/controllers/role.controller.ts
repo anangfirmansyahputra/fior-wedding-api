@@ -206,7 +206,7 @@ export const update = async (req: Request, res: Response) => {
     });
   } catch (e: any) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
-      if (e.code === "P2002") {
+      if (e.code === "P2003") {
         console.log(e.name);
         return res.status(400).json({
           success: false,
