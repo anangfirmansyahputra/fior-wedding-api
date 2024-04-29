@@ -5,8 +5,8 @@ import {
   find,
   update,
   deleteEvent,
-} from "../controllers/event.controller";
-import authMiddleware from "../middlewares/auth";
+} from "../../controllers/event/event";
+import authMiddleware from "../../middlewares/auth";
 
 const eventRouter = Router();
 
