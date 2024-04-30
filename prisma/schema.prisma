@@ -106,6 +106,7 @@ model VendorCategory {
   @@map("vendor_categories")
 }
 
+// ERD
 model Vendor {
   id           Int           @id @default(autoincrement())
   data         Json
@@ -133,26 +134,20 @@ model Event {
   venue_address   String   @db.Text
   archive         Boolean  @default(false)
 
-  event_vendor        EventVendor[]
-  event_payment       EventPayment[]
-  event_tasK_timeline EventTaskTimeline[]
-  checklist_support   ChecklistSupport[]
-  checklist_holmat    ChecklistHolmat[]
-  event_budget        EventBudget[]
-  event_rundown       EventRundown[]
-  event_guest_seat    EventGuestSeat[]
-  event_room_list     EventRoomList[]
+  event_vendor EventVendor[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   event_collaboratos EventCollaborator[]
   event_biodatas     EventBiodata[]
+  event_guestlist    EventGuestList[]
+  event_rundowns     EventRundown[]
 
   @@map("events")
 }
 
-// Progress
+// Done
 model EventBiodata {
   id                      String           @id @default(uuid())
   event_id                String
@@ -186,16 +181,63 @@ model EventBiodata {
   foto_bride_note         String?          @db.Text
   foto_penjemputan        String?
   foto_penjemputan_note   String?          @db.Text
-  order_nr                Int
+  order_nr                Int?
 
-  event Event @relation(fields: [event_id], references: [id], onDelete: Cascade)
-
+  event      Event    @relation(fields: [event_id], references: [id], onDelete: Cascade)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   @@map("event_biodatas")
 }
 
+// Done
+model EventRundown {
+  id                     String   @id @default(uuid())
+  event_id               String
+  rundown_name           String
+  rundown_date           DateTime
+  rundown_start_datetime DateTime
+  rundown_end_datetime   DateTime
+  rundown_notes          String
+  rundown_location       String
+
+  event      Event    @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("event_rundowns")
+}
+
+// Done
+model EventGuestList {
+  id            String   @id @default(uuid())
+  event_id      String
+  name          String
+  total_pax     String
+  no_hp         String
+  status        String
+  adult         String
+  children      String
+  food_notes    String   @db.Text
+  hotel         String
+  room_type     String
+  check_in_date DateTime
+  checkout      DateTime
+  night         String
+  extra_bed     String
+  transport     String
+  notes         String   @db.Text
+  amount        Int
+  total_amount  Int
+
+  event      Event    @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("event_guestlists")
+}
+
+// ERD
 model EventVendor {
   id String @id @default(uuid())
 
@@ -211,198 +253,6 @@ model EventVendor {
   @@map("event_vendors")
 }
 
-model EventPayment {
-  id String @id @default(uuid())
-
-  event_id       String
-  event          Event         @relation(fields: [event_id], references: [id], onDelete: Cascade)
-  amount         Float
-  payment_method PaymentMethod
-  payment_status PaymentStatus @default(PENDING)
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@map("event_payments")
-}
-
-model EventTaskTimeline {
-  id String @id @default(uuid())
-
-  event_id    String
-  event       Event   @relation(fields: [event_id], references: [id], onDelete: Cascade)
-  description String? @db.Text
-  status      Status  @default(PENDING)
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@map("event_task_timelines")
-}
-
-model ChecklistSupport {
-  id String @id @default(uuid())
-
-  event_id            String
-  event               Event      @relation(fields: [event_id], references: [id], onDelete: Cascade)
-  support_name        String
-  support_description String?    @db.Text
-  support_status      ItemStatus @default(PENDING)
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@map("checklist_supports")
-}
-
-model ChecklistHolmat {
-  id String @id @default(uuid())
-
-  event_id String
-  name     String @unique
-
-  event                  Event                 @relation(fields: [event_id], references: [id], onDelete: Cascade)
-  created_at             DateTime              @default(now())
-  updated_at             DateTime              @updatedAt
-  checklist_holmat_items ChecklistHolmatItem[]
-
-  @@map("checklist_holmats")
-}
-
-model ChecklistHolmatItem {
-  id                  String  @id @default(uuid())
-  description         String
-  note                String? @db.Text
-  checklist_holmat_id String
-
-  checklist_holmat ChecklistHolmat @relation(fields: [checklist_holmat_id], references: [id], onDelete: Cascade)
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@map("checklist_holmat_items")
-}
-
-model EventBudget {
-  id String @id @default(uuid())
-
-  event_id String
-  name     String
-
-  event         Event             @relation(fields: [event_id], references: [id], onDelete: Cascade)
-  created_at    DateTime          @default(now())
-  updated_at    DateTime          @updatedAt
-  event_budgets EventBudgetItem[]
-
-  @@map("event_budgets")
-}
-
-model EventBudgetItem {
-  id              String  @id @default(uuid())
-  event_budget_id String
-  estimated       Int
-  actual          Int
-  notes           String? @db.Text
-
-  event_budget EventBudget @relation(fields: [event_budget_id], references: [id], onDelete: Cascade)
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-}
-
-model EventRundown {
-  id String @id @default(uuid())
-
-  event_id      String
-  event         Event    @relation(fields: [event_id], references: [id], onDelete: Cascade)
-  activity_name String
-  start_time    DateTime
-  end_time      DateTime
-  location      String
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@map("event_rundowns")
-}
-
-model EventGuestSeat {
-  id String @id @default(uuid())
-
-  event_id      String
-  event         Event        @relation(fields: [event_id], references: [id], onDelete: Cascade)
-  guest_name    String
-  seat_number   String?
-  seat_category SeatCategory
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@map("event_guest_seats")
-}
-
-model EventRoomList {
-  id String @id @default(uuid())
-
-  event_id      String
-  event         Event  @relation(fields: [event_id], references: [id], onDelete: Cascade)
-  room_name     String
-  room_capacity Int?
-  room_location String
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@map("event_room_lists")
-}
-
-enum Gender {
-  MALE
-  FEMALE
-  OTHER
-}
-
-enum EventStatus {
-  SCHEDULED
-  ONGOING
-  COMPLETED
-}
-
-enum PaymentMethod {
-  CREDIT_CARD
-  BANK_TRANSFER
-  CASH
-}
-
-enum PaymentStatus {
-  PENDING
-  COMPLETED
-  FAILED
-}
-
-enum Status {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-}
-
-enum SeatCategory {
-  VIP
-  REGULAR
-  SPECIAL
-}
-
-enum ItemStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-enum Roles {
-  ADMIN
-  CUSTOMER
-}
-
 model VendorNote {
   id String @id @default(uuid())
 
@@ -414,46 +264,6 @@ model VendorNote {
   vendor Vendor @relation(fields: [vendor_id], references: [id], onDelete: Cascade)
 
   @@map("vendor_notes")
-}
-
-enum VenueStatus {
-  INDOOR
-  OUTDOOR
-}
-
-enum AttendanceType {
-  HALF_DAY
-  FULL_DAY
-}
-
-enum HolyMatrimony {
-  AKAD_NIKAH
-  KATOLIK
-  BUDHA
-  KRISTEN
-  HINDU
-}
-
-enum SeatStatus {
-  SEATING
-  STANDING
-}
-
-enum Adat {
-  INTERNATIONAL
-  TRADITIONAL_JAWA
-  TRADITIONAL_SUNDA
-  ETC
-}
-
-enum OccasionType {
-  COCKTAIL
-  AFTER_PARTY
-}
-
-enum CustomerBiodataRoleType {
-  GROOM
-  BRIDE
 }
 
 enum EventBiodataType {
