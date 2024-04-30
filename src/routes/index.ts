@@ -4,7 +4,7 @@ import customerRouter from "./customer-routes";
 import eventRouter from "./event/event";
 import { eventVendorRouter } from "./event-vendor-routes";
 import { vendorCategoryRouter } from "./vendor-category-routes";
-import { vendorRouter } from "./vendor-routes";
+import { vendorRouter } from "./vendor";
 import { roleRoutes } from "./role.router";
 import permissionRouter from "./permission.router";
 import vendorNoteRouter from "./vendor-note.router";

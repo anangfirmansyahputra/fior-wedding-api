@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getVendors, scrappingVendor } from "../controllers/vendor-controller";
+import { getVendors, scrappingVendor } from "../controllers/vendor";
 
 export const vendorRouter: Router = Router();
 

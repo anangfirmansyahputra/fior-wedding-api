@@ -30,6 +30,7 @@ model User {
   updated_at          DateTime            @updatedAt
   vendor_notes        VendorNote[]
   event_collaborators EventCollaborator[]
+  assignee            Assignee[]
 
   @@map("users")
 }
@@ -92,35 +93,6 @@ model Customer {
   @@map("customers")
 }
 
-model VendorCategory {
-  id          Int    @id
-  name        String
-  status      String
-  slug        String
-  description String @db.Text
-  imageUrl    String
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@map("vendor_categories")
-}
-
-// ERD
-model Vendor {
-  id           Int           @id @default(autoincrement())
-  data         Json
-  created_at   DateTime      @default(now())
-  updated_at   DateTime      @updatedAt
-  name         String
-  category     String
-  city         String
-  event_vendor EventVendor[]
-  note         VendorNote[]
-
-  @@map("vendors")
-}
-
 // Done
 model Event {
   id String @id @default(uuid())
@@ -143,6 +115,7 @@ model Event {
   event_biodatas     EventBiodata[]
   event_guestlist    EventGuestList[]
   event_rundowns     EventRundown[]
+  EventTaskTimeline  EventTaskTimeline[]
 
   @@map("events")
 }
@@ -237,7 +210,110 @@ model EventGuestList {
   @@map("event_guestlists")
 }
 
-// ERD
+// Done
+model Assignee {
+  id                     String @id @default(uuid())
+  user_id                String
+  event_task_timeline_id String
+
+  user                 User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  event_task_timelines EventTaskTimeline @relation(fields: [event_task_timeline_id], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("assignees")
+}
+
+// Done
+model EventTaskTimeline {
+  id               String   @id @default(uuid())
+  event_id         String
+  category         String
+  task_name        String
+  task_description String?  @db.Text
+  start_date       DateTime
+  due_date         DateTime
+  event_vendor_id  String
+  status           String?
+  notes            String?
+  order_nr         Int?
+
+  event                      Event                     @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  event_vendor               EventVendor               @relation(fields: [event_vendor_id], references: [id])
+  assignee                   Assignee[]
+  event_timeline_comments    EventTimeLineComment[]
+  event_timeline_attachments EventTimelineAttachment[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("event_task_timelines")
+}
+
+// Done
+model EventTimeLineComment {
+  id                     String @id @default(uuid())
+  event_task_timeline_id String
+  comment                String @db.Text
+
+  event_task_timeline EventTaskTimeline @relation(fields: [event_task_timeline_id], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("event_timeline_comments")
+}
+
+// Done
+model EventTimelineAttachment {
+  id                     String @id @default(uuid())
+  event_task_timeline_id String
+  filename               String @db.Text
+
+  event_task_timeline EventTaskTimeline @relation(fields: [event_task_timeline_id], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("event_timeline_attachments")
+}
+
+model Vendor {
+  id            Int     @id @default(autoincrement())
+  // data          Json
+  name          String
+  slug          String
+  cover         String?
+  category      String
+  category_slug String
+  city          String
+  city_slug     String
+  contact       String?
+
+  event_vendors EventVendor[]
+  notes         VendorNote[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("vendors")
+}
+
+model VendorCategory {
+  id          Int    @id
+  name        String
+  status      String
+  slug        String
+  description String @db.Text
+  imageUrl    String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("vendor_categories")
+}
+
 model EventVendor {
   id String @id @default(uuid())
 
@@ -247,8 +323,9 @@ model EventVendor {
   vendor_id Int
   vendor    Vendor @relation(fields: [vendor_id], references: [id], onDelete: Cascade)
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at           DateTime            @default(now())
+  updated_at           DateTime            @updatedAt
+  event_task_timelines EventTaskTimeline[]
 
   @@map("event_vendors")
 }

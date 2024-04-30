@@ -4,6 +4,7 @@ import { prismaClient } from "..";
 import { createPagination } from "../lib/utils";
 import { Prisma } from "@prisma/client";
 import { ErrorCode, getErrorMessage } from "../lib/error-code";
+import { errorResponse } from "../exceptions/error";
 
 export const scrappingVendor = async (req: Request, res: Response) => {
   try {
@@ -34,29 +35,31 @@ export const scrappingVendor = async (req: Request, res: Response) => {
           },
           update: {
             id: vendor.id,
-            data: vendor,
             name: vendor.name,
-            category: vendor.category.slug,
+            category: vendor.category.name,
             city: vendor.city.slug,
+            category_slug: vendor.category.slug,
+            city_slug: vendor.city.slug,
+            contact: null,
+            cover: vendor.cover,
+            slug: vendor.slug,
           },
           create: {
             id: vendor.id,
-            data: vendor,
             name: vendor.name,
-            category: vendor.category.slug,
+            category: vendor.category.name,
             city: vendor.city.slug,
+            category_slug: vendor.category.slug,
+            city_slug: vendor.city.slug,
+            contact: null,
+            cover: vendor.cover,
+            slug: vendor.slug,
           },
         });
       }
     } while (next);
   } catch (err) {
-    console.log(err);
-
-    return res.status(500).json({
-      errors: {
-        message: "Internal server error",
-      },
-    });
+    return errorResponse({ res, type: "internal error" });
   }
 };
 
