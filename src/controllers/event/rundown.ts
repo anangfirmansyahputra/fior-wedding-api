@@ -58,6 +58,7 @@ export const create = async (req: Request, res: Response) => {
 
 export const get = async (req: Request, res: Response) => {
   try {
+    let rundowns;
     const event = await prismaClient.event.findFirst({
       where: {
         id: req.params.event_id,
@@ -89,11 +90,15 @@ export const get = async (req: Request, res: Response) => {
       });
     }
 
-    const rundowns = await prismaClient.eventRundown.findMany({
-      where: {
-        event_id: req.params.event_id,
-      },
-    });
+    if (isAdmin) {
+      rundowns = await prismaClient.eventRundown.findMany({});
+    } else {
+      rundowns = await prismaClient.eventRundown.findMany({
+        where: {
+          event_id: req.params.event_id,
+        },
+      });
+    }
 
     return res.status(200).json({
       success: true,

@@ -73,10 +73,43 @@ const authMiddleware = (permission?: string) => {
         });
       }
 
+      const eventCollaborators = user.event_collaborators;
+      const eventId = req?.params?.event_id;
+      const isAdmin = user.role.name === "Super Admin";
+
+      if (eventId) {
+        const isCollaborator = eventCollaborators.find(
+          (colaborator) => colaborator.event_id === eventId
+        );
+        const event = await prismaClient.event.findFirst({
+          where: {
+            id: eventId,
+          },
+        });
+
+        if (!event) {
+          return errorResponse({
+            res,
+            type: "not found",
+            message: "Event not found",
+          });
+        }
+
+        if (!isCollaborator && !isAdmin) {
+          return errorResponse({
+            res,
+            type: "no permissions",
+            message: "You dont have permission to this data",
+          });
+        }
+      }
+
       req.user = user;
 
       return next();
     } catch (err) {
+      console.log(err);
+
       return errorResponse({
         res,
         type: "unauthorized",

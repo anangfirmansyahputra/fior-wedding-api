@@ -11,6 +11,9 @@ import vendorNoteRouter from "./vendor-note.router";
 import collaborator from "./event/collaborator";
 import biodata from "./event/biodata";
 import eventRundownRouter from "./event/rundown";
+import eventTaskTimelineRouter from "./event/task-timeline/task-timeline";
+import eventTaskTimelineComment from "./event/task-timeline/comment";
+import eventTaskTimelineAttachment from "./event/task-timeline/attachment";
 
 const rootRouter: Router = Router();
 
@@ -24,6 +27,9 @@ rootRouter.use("/events", [
   collaborator,
   biodata,
   eventRundownRouter,
+  eventTaskTimelineRouter,
+  eventTaskTimelineComment,
+  eventTaskTimelineAttachment,
 ]);
 rootRouter.use("/roles", roleRoutes);
 rootRouter.use("/permissions", permissionRouter);

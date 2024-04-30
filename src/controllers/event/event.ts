@@ -110,14 +110,7 @@ export const update = async (req: Request, res: Response) => {
   try {
     eventSchema.parse(req.body);
   } catch (err: any) {
-    return res.status(400).json({
-      success: false,
-      errors: {
-        error_code: ErrorCode.INVALID_INPUT,
-        error_message: getErrorMessage(ErrorCode.INVALID_INPUT),
-        message: err?.issues,
-      },
-    });
+    return errorResponse({ res, type: "invalid", message: err?.issues });
   }
 
   try {

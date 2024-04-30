@@ -9,9 +9,9 @@ import authMiddleware from "../middlewares/auth";
 
 export const eventVendorRouter: Router = Router();
 
-eventVendorRouter.get("/:event_id/vendors", authMiddleware, get);
-eventVendorRouter.get("/:event_id/vendors/:id", authMiddleware, find);
-eventVendorRouter.post("/:event_id/vendors/", authMiddleware, create);
+eventVendorRouter.get("/:event_id/vendors", authMiddleware(), get);
+eventVendorRouter.get("/:event_id/vendors/:id", authMiddleware(), find);
+eventVendorRouter.post("/:event_id/vendors/", authMiddleware(), create);
 eventVendorRouter.delete(
   "/:event_id/vendors/:id",
   authMiddleware,

@@ -5,7 +5,7 @@ import { Prisma } from "@prisma/client";
 
 export const create = async (req: Request, res: Response) => {
   try {
-    const { user_id } = req.body;
+    const { users } = req.body;
 
     const event = await prismaClient.event.findFirst({
       where: {
@@ -21,27 +21,45 @@ export const create = async (req: Request, res: Response) => {
       });
     }
 
-    if (!user_id) {
+    if (!users || users.length === 0) {
       return errorResponse({
         res,
         type: "invalid",
-        message: "Please insert an user ID.",
+        message: "Please insert at least one user id.",
       });
     }
 
-    const eventCollaborator = await prismaClient.eventCollaborator.create({
-      data: {
+    for (const user of users) {
+      const findUser = await prismaClient.user.findFirst({
+        where: {
+          id: user,
+        },
+      });
+
+      if (!findUser) {
+        return errorResponse({
+          res,
+          type: "not found",
+          message: "User not found",
+        });
+      }
+    }
+
+    await prismaClient.eventCollaborator.createMany({
+      data: users.map((user: string) => ({
         event_id: req.params.event_id,
-        user_id,
-      },
+        user_id: user,
+      })),
     });
 
     return res.status(200).json({
       success: true,
-      data: eventCollaborator,
+      data: null,
       message: "Event collaborator created successfully",
     });
   } catch (e: any) {
+    console.log(e);
+
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2002") {
         return errorResponse({ res, type: "invalid", message: e.message });

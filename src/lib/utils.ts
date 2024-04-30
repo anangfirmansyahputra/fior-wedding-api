@@ -1,3 +1,7 @@
+import { EventCollaborator } from "@prisma/client";
+import { errorResponse } from "../exceptions/error";
+import { Response } from "express";
+
 export function createPagination(
   page: number,
   pageSize: number,
@@ -25,4 +29,20 @@ export function createPagination(
     current_page: page,
     total: totalCount,
   };
+}
+
+export function isCollaborator(res: Response, user: any, eventId: string) {
+  const eventCollaborators: EventCollaborator[] = user.event_collaborators;
+
+  const isCollaborator = eventCollaborators.find(
+    (colaborator) => colaborator.event_id === eventId
+  );
+
+  const isAdmin = user.role.name === "Super Admin";
+
+  if (!isCollaborator && !isAdmin) {
+    return false;
+  } else {
+    return true;
+  }
 }
