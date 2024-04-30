@@ -111,11 +111,13 @@ model Event {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  event_collaboratos EventCollaborator[]
-  event_biodatas     EventBiodata[]
-  event_guestlist    EventGuestList[]
-  event_rundowns     EventRundown[]
-  EventTaskTimeline  EventTaskTimeline[]
+  event_collaboratos   EventCollaborator[]
+  event_biodatas       EventBiodata[]
+  event_guestlist      EventGuestList[]
+  event_rundowns       EventRundown[]
+  event_task_timelines EventTaskTimeline[]
+  event_expenses       EventExpense[]
+  event_payments       EventPayment[]
 
   @@map("events")
 }
@@ -183,25 +185,25 @@ model EventRundown {
 
 // Done
 model EventGuestList {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   event_id      String
   name          String
-  total_pax     String
-  no_hp         String
+  total_pax     Int?
+  no_hp         String?
   status        String
-  adult         String
-  children      String
-  food_notes    String   @db.Text
-  hotel         String
-  room_type     String
-  check_in_date DateTime
-  checkout      DateTime
-  night         String
-  extra_bed     String
-  transport     String
-  notes         String   @db.Text
-  amount        Int
-  total_amount  Int
+  adult         String?
+  children      String?
+  food_notes    String?   @db.Text
+  hotel         String?
+  room_type     String?
+  check_in_date DateTime?
+  checkout      DateTime?
+  night         String?
+  extra_bed     String?
+  transport     String?
+  notes         String?   @db.Text
+  amount        Int?
+  total_amount  Int?
 
   event      Event    @relation(fields: [event_id], references: [id], onDelete: Cascade)
   created_at DateTime @default(now())
@@ -279,6 +281,45 @@ model EventTimelineAttachment {
   @@map("event_timeline_attachments")
 }
 
+// Done
+model EventExpense {
+  id           String                @id @default(uuid())
+  event_id     String
+  category     EventExpensesCategory
+  expense_name String
+  quantity     Int
+  price        Float
+  notes        String?               @db.Text
+  vendor_id    Int
+  status       EventExpensesStatus
+
+  event Event @relation(fields: [event_id], references: [id], onDelete: Cascade)
+
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
+  event_payments EventPayment[]
+
+  @@map("event_expenses")
+}
+
+model EventPayment {
+  id           String @id @default(uuid())
+  event_id     String
+  expense_id   String
+  expense_name String
+  vendor_name  String
+  price        Float
+  amount_paid  Float?
+
+  event   Event        @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  expense EventExpense @relation(fields: [expense_id], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("event_payments")
+}
+
 model Vendor {
   id            Int     @id @default(autoincrement())
   // data          Json
@@ -351,4 +392,19 @@ enum EventBiodataType {
   list_transport
   list_foto
   event_layout
+}
+
+enum EventExpensesCategory {
+  VENUE
+  FOOD
+  RECEPTION
+  ATTIRE
+  MAKEUP
+  OTHERS
+}
+
+enum EventExpensesStatus {
+  PAID
+  PARTIAL_PAID
+  UNPAID
 }
