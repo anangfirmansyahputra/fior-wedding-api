@@ -195,7 +195,7 @@ model EventRundown {
   id                     String   @id @default(uuid())
   event_id               String
   rundown_name           String
-  rundown_date           DateTime
+  rundown_date           String
   rundown_start_datetime DateTime
   rundown_end_datetime   DateTime
   rundown_notes          String

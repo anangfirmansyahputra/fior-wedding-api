@@ -60,6 +60,42 @@ async function main() {
           name: "Delete Customer Biodata",
           name_code: "delete_customer_biodata",
         },
+        {
+          name: "Create Event Biodata",
+          name_code: "create_event_biodata",
+        },
+        {
+          name: "Read Event Biodata",
+          name_code: "read_event_biodata",
+        },
+        {
+          name: "Update Event Biodata",
+          name_code: "update_event_biodata",
+        },
+        {
+          name: "Delete Event Biodata",
+          name_code: "delete_event_biodata",
+        },
+        {
+          name: "Create Event Collaborator",
+          name_code: "create_event_collaborator",
+        },
+        {
+          name: "Read Event Rundown",
+          name_code: "read_event_rundown",
+        },
+        {
+          name: "Create Event Rundown",
+          name_code: "create_event_rundown",
+        },
+        {
+          name: "Update Event Rundown",
+          name_code: "update_event_rundown",
+        },
+        {
+          name: "Delete Event Rundown",
+          name_code: "delete_event_rundown",
+        },
       ],
     });
 
