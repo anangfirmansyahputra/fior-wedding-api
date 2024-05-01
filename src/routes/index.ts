@@ -15,6 +15,8 @@ import eventTaskTimelineRouter from "./event/task-timeline/task-timeline";
 import eventTaskTimelineComment from "./event/task-timeline/comment";
 import eventTaskTimelineAttachment from "./event/task-timeline/attachment";
 import eventGuestListRouter from "./event/guest-list";
+import eventExpenseRouter from "./event/expense";
+import eventPaymentRouter from "./event/payment";
 
 const rootRouter: Router = Router();
 
@@ -32,6 +34,8 @@ rootRouter.use("/events", [
   eventTaskTimelineComment,
   eventTaskTimelineAttachment,
   eventGuestListRouter,
+  eventExpenseRouter,
+  eventPaymentRouter,
 ]);
 rootRouter.use("/roles", roleRoutes);
 rootRouter.use("/permissions", permissionRouter);
