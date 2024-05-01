@@ -3,6 +3,7 @@ import { eventBiodata } from "../../schema/event/biodata";
 import { errorResponse } from "../../exceptions/error";
 import { EventCollaborator, Prisma } from "@prisma/client";
 import { prismaClient } from "../../index";
+import { deleteUploadedFile } from "../../lib/multer";
 
 export const create = async (req: Request, res: Response) => {
   try {
@@ -46,7 +47,9 @@ export const create = async (req: Request, res: Response) => {
         transport_vehicle: req.body.transport_vehicle,
         transport_platenr: req.body.transport_platenr,
         transport_notes: req.body.transport_notes,
-        event_layout: req.body.event_layout,
+        event_layout: req?.file?.filename
+          ? process.env.APP_URL + "/uploads/" + req.file?.filename
+          : null,
         foto_groom: req.body.foto_groom,
         foto_groom_note: req.body.foto_groom_note,
         foto_bride: req.body.foto_bride,
@@ -255,7 +258,9 @@ export const update = async (req: Request, res: Response) => {
         transport_vehicle: req.body.transport_vehicle,
         transport_platenr: req.body.transport_platenr,
         transport_notes: req.body.transport_notes,
-        event_layout: req.body.event_layout,
+        event_layout: req?.file?.filename
+          ? process.env.APP_URL + "/uploads/" + req.file?.filename
+          : null,
         foto_groom: req.body.foto_groom,
         foto_groom_note: req.body.foto_groom_note,
         foto_bride: req.body.foto_bride,

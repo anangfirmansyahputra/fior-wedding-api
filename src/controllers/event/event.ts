@@ -4,6 +4,7 @@ import { ErrorCode, getErrorMessage } from "../../lib/error-code";
 import { eventSchema } from "../../schema/event";
 import { EventCollaborator, Prisma } from "@prisma/client";
 import { errorResponse } from "../../exceptions/error";
+import { createPagination } from "../../lib/utils";
 
 export const create = async (req: Request, res: Response) => {
   try {
@@ -43,16 +44,52 @@ export const create = async (req: Request, res: Response) => {
 
 export const get = async (req: Request, res: Response) => {
   try {
+    const page = Number(req.query.page) || 1;
+    const pageSize = Number(req.query.pageSize) || 10;
+    const offset = (page - 1) * pageSize;
+    const name = (req.query.name as string) || "";
+
     let events;
+    let totalCount;
     const isAdmin = req.user.role.name === "Super Admin";
 
     const eventCollaborators: EventCollaborator[] =
       req.user.event_collaborators;
 
     if (isAdmin) {
-      events = await prismaClient.event.findMany({});
+      events = await prismaClient.event.findMany({
+        skip: offset,
+        take: pageSize,
+        where: name
+          ? {
+              client_name: {
+                contains: name,
+              },
+            }
+          : {},
+      });
+
+      totalCount = await prismaClient.event.count({});
     } else {
       events = await prismaClient.event.findMany({
+        where: name
+          ? {
+              OR: eventCollaborators.map((collaborator) => ({
+                id: collaborator.event_id,
+              })),
+              client_name: {
+                contains: name,
+              },
+            }
+          : {
+              OR: eventCollaborators.map((collaborator) => ({
+                id: collaborator.event_id,
+              })),
+            },
+        skip: offset,
+        take: pageSize,
+      });
+      totalCount = await prismaClient.event.count({
         where: {
           OR: eventCollaborators.map((collaborator) => ({
             id: collaborator.event_id,
@@ -61,9 +98,21 @@ export const get = async (req: Request, res: Response) => {
       });
     }
 
+    const { next_page, previous_age, current_page, total } = createPagination(
+      page,
+      pageSize,
+      totalCount
+    );
+
     return res.status(200).json({
       success: true,
       data: events,
+      page_info: {
+        next_page: events.length === 0 ? null : next_page,
+        previous_page: events.length === 0 ? null : previous_age,
+        current_page,
+        total,
+      },
     });
   } catch (err) {
     return errorResponse({ res, type: "internal error" });

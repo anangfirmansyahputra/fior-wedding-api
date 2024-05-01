@@ -87,6 +87,9 @@ model Permission {
 model Customer {
   id String @id @default(uuid())
 
+  name  String
+  no_hp String
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -324,7 +327,7 @@ model Vendor {
   id            Int     @id @default(autoincrement())
   // data          Json
   name          String
-  slug          String
+  slug          String  @unique
   cover         String?
   category      String
   category_slug String

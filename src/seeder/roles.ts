@@ -192,6 +192,50 @@ async function main() {
           name: "Delete Event payment",
           name_code: "delete_event_payment",
         },
+        {
+          name: "Create Vendor",
+          name_code: "create_vendor",
+        },
+        {
+          name: "Read Vendor",
+          name_code: "read_vendor",
+        },
+        {
+          name: "Update Vendor",
+          name_code: "update_vendor",
+        },
+        {
+          name: "Delete Vendor",
+          name_code: "delete_vendor",
+        },
+        {
+          name: "Read Vendor Category",
+          name_code: "read_vendor_category",
+        },
+        {
+          name: "Scrapping Vendor Category",
+          name_code: "scrapping_vendor_category",
+        },
+        {
+          name: "Scrapping Vendor",
+          name_code: "scrapping_vendor",
+        },
+        {
+          name: "Create Vendor Note",
+          name_code: "create_vendor_note",
+        },
+        {
+          name: "Read Vendor Note",
+          name_code: "read_vendor_note",
+        },
+        {
+          name: "Update Vendor Note",
+          name_code: "update_vendor_note",
+        },
+        {
+          name: "Delete Vendor Note",
+          name_code: "delete_vendor_note",
+        },
       ],
     });
 

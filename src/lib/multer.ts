@@ -35,3 +35,13 @@ export function handleMulterError(
   }
   next(err);
 }
+
+export function deleteUploadedFile(filePath: string) {
+  fs.unlink(filePath, (err) => {
+    if (err) {
+      console.error("Gagal menghapus file:", err);
+    } else {
+      console.log("File berhasil dihapus:", filePath);
+    }
+  });
+}

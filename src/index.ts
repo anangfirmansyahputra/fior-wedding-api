@@ -25,6 +25,11 @@ export const prismaClient = new PrismaClient({});
 
 export const exclude = prismaExclude(prismaClient);
 
+app.get("/uploads/:filename", (req, res) => {
+  const fileName = req.params.filename;
+  res.sendFile(path.join(__dirname, "../uploads", fileName));
+});
+
 app.listen(process.env.APP_PORT, () => {
   console.log(`Server is running on port ${process.env.APP_PORT}`);
 });

@@ -1,10 +1,10 @@
+import { Prisma } from "@prisma/client";
 import axios from "axios";
 import { Request, Response } from "express";
 import { prismaClient } from "..";
-import { createPagination } from "../lib/utils";
-import { Prisma } from "@prisma/client";
-import { ErrorCode, getErrorMessage } from "../lib/error-code";
 import { errorResponse } from "../exceptions/error";
+import { createPagination } from "../lib/utils";
+import { vendorSchema } from "../schema/vendor";
 
 export const scrappingVendor = async (req: Request, res: Response) => {
   try {
@@ -68,16 +68,11 @@ export const getVendors = async (req: Request, res: Response) => {
     const page = Number(req.query.page) || 1;
     const pageSize = Number(req.query.pageSize) || 10;
     const name = (req.query.name as string) || "";
-    // const country = (req.query.country as string) || "";
     const category = (req.query.category as string) || "";
     const city = (req.query.city as string) || "";
 
     const offset = (page - 1) * pageSize;
     const whereClause = {} as any;
-
-    // if (country) {
-    //   whereClause.country = country;
-    // }
 
     if (category) {
       whereClause.category = category;
@@ -143,28 +138,142 @@ export const getVendors = async (req: Request, res: Response) => {
 
 export const create = async (req: Request, res: Response) => {
   try {
+    vendorSchema.parse(req.body);
+  } catch (e: any) {
+    return errorResponse({ res, type: "invalid", message: e?.issues });
+  }
+
+  try {
+    const vendor = await prismaClient.vendor.create({
+      data: {
+        category: req.body.category,
+        category_slug: req.body.category_slug,
+        city: req.body.city,
+        city_slug: req.body.city_slug,
+        name: req.body.name,
+        slug: req.body.slug,
+        contact: req.body.contact,
+        cover: req.file?.filename
+          ? process.env.APP_URL + "/uploads/" + req.file?.filename
+          : null,
+      },
+    });
+
+    return res.status(201).json({
+      success: true,
+      data: vendor,
+      message: "Vendor created successfully",
+    });
   } catch (e: any) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2002") {
-        console.log(e.name);
-        return res.status(400).json({
-          success: false,
-          errors: {
-            error_code: ErrorCode.INVALID_INPUT,
-            error_message: getErrorMessage(ErrorCode.INVALID_INPUT),
-            message: e.message,
-          },
-        });
+        return errorResponse({ res, type: "invalid", message: e.message });
       }
     } else {
-      return res.status(500).json({
-        success: false,
-        errors: {
-          error_code: ErrorCode.INTERNAL_SERVER_ERROR,
-          error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
-          message: "Internal server error",
-        },
+      return errorResponse({ res, type: "internal error" });
+    }
+  }
+};
+
+export const find = async (req: Request, res: Response) => {
+  try {
+    const vendor = await prismaClient.vendor.findFirst({
+      where: {
+        id: Number(req.params.id),
+      },
+    });
+
+    if (!vendor) {
+      return errorResponse({
+        res,
+        type: "not found",
+        message: "Vendor not found",
       });
     }
+
+    return res.status(200).json({
+      success: true,
+      data: vendor,
+    });
+  } catch (e: any) {
+    return errorResponse({ res, type: "internal error" });
+  }
+};
+
+export const update = async (req: Request, res: Response) => {
+  try {
+    vendorSchema.parse(req.body);
+  } catch (e: any) {
+    return errorResponse({ res, type: "invalid", message: e?.issues });
+  }
+
+  try {
+    const vendor = await prismaClient.vendor.findFirst({
+      where: {
+        id: Number(req.params.id),
+      },
+    });
+
+    if (!vendor) {
+      return errorResponse({
+        res,
+        type: "not found",
+        message: "Vendor not found",
+      });
+    }
+
+    const data = await prismaClient.vendor.update({
+      where: {
+        id: Number(req.params.id),
+      },
+      data: {
+        category: req.body.category,
+        category_slug: req.body.category_slug,
+        city: req.body.city,
+        city_slug: req.body.city_slug,
+        name: req.body.name,
+        slug: req.body.slug,
+        contact: req.body.contact,
+        cover: req.file?.filename
+          ? process.env.APP_URL + "/uploads/" + req.file?.filename
+          : null,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data,
+      message: "Vendor updated successfully",
+    });
+  } catch (e: any) {
+    return errorResponse({ res, type: "internal error" });
+  }
+};
+
+export const remove = async (req: Request, res: Response) => {
+  try {
+    const vendor = await prismaClient.vendor.findFirst({
+      where: {
+        id: Number(req.params.id),
+      },
+    });
+
+    if (!vendor) {
+      return errorResponse({
+        res,
+        type: "not found",
+        message: "Vendor not found",
+      });
+    }
+
+    await prismaClient.vendor.delete({
+      where: {
+        id: Number(req.params.id),
+      },
+    });
+
+    return res.status(204).json({});
+  } catch (e: any) {
+    return errorResponse({ res, type: "internal error" });
   }
 };

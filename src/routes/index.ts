@@ -1,6 +1,6 @@
 import { Router } from "express";
 import authRouter from "./auth-routes";
-import customerRouter from "./customer-routes";
+import customerRouter from "./customer";
 import eventRouter from "./event/event";
 import { eventVendorRouter } from "./event-vendor-routes";
 import { vendorCategoryRouter } from "./vendor-category-routes";
