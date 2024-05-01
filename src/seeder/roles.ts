@@ -236,6 +236,38 @@ async function main() {
           name: "Delete Vendor Note",
           name_code: "delete_vendor_note",
         },
+        {
+          name: "Create Event Holmat",
+          name_code: "create_event_holmat",
+        },
+        {
+          name: "Read Event Holmat",
+          name_code: "read_event_holmat",
+        },
+        {
+          name: "Update Event Holmat",
+          name_code: "update_event_holmat",
+        },
+        {
+          name: "Delete Event Holmat",
+          name_code: "delete_event_holmat",
+        },
+        {
+          name: "Create Event Holmat Cheklist",
+          name_code: "create_event_holmat_checklist",
+        },
+        {
+          name: "Read Event Holmat Cheklist",
+          name_code: "read_event_holmat_checklist",
+        },
+        {
+          name: "Update Event Holmat Cheklist",
+          name_code: "update_event_holmat_checklist",
+        },
+        {
+          name: "Delete Event Holmat Cheklist",
+          name_code: "delete_event_holmat_checklist",
+        },
       ],
     });
 

@@ -121,6 +121,7 @@ model Event {
   event_task_timelines EventTaskTimeline[]
   event_expenses       EventExpense[]
   event_payments       EventPayment[]
+  event_holmats        EventHolmat[]
 
   @@map("events")
 }
@@ -385,6 +386,34 @@ model VendorNote {
   vendor Vendor @relation(fields: [vendor_id], references: [id], onDelete: Cascade)
 
   @@map("vendor_notes")
+}
+
+model EventHolmat {
+  id       String @id @default(uuid())
+  title    String @unique
+  event_id String
+
+  event Event @relation(fields: [event_id], references: [id], onDelete: Cascade)
+
+  created_at             DateTime               @default(now())
+  updated_at             DateTime               @updatedAt
+  event_holmat_checklist EventHolmatChecklist[]
+
+  @@map("event_holmats")
+}
+
+model EventHolmatChecklist {
+  id              String  @id @default(uuid())
+  description     String
+  notes           String? @db.Text
+  event_holmat_id String
+
+  event_holmat EventHolmat @relation(fields: [event_holmat_id], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("event_holmat_checklists")
 }
 
 enum EventBiodataType {
