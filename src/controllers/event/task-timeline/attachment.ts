@@ -30,7 +30,7 @@ export const create = async (req: Request, res: Response) => {
     const attachment = await prismaClient.eventTimelineAttachment.create({
       data: {
         event_task_timeline_id: req.params.task_timeline_id,
-        filename: process.env.APP_URL + "/uploads/" + req.file?.filename,
+        filename: process.env.APP_URL + "/upload/" + req.file?.filename,
       },
     });
 
@@ -160,7 +160,7 @@ export const update = async (req: Request, res: Response) => {
         event_task_timeline_id: req.params.task_timeline_id,
       },
       data: {
-        filename: process.env.APP_URL + "/uploads/" + req.file?.filename,
+        filename: process.env.APP_URL + "/upload/" + req.file?.filename,
       },
     });
 

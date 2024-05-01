@@ -48,7 +48,7 @@ export const create = async (req: Request, res: Response) => {
         transport_platenr: req.body.transport_platenr,
         transport_notes: req.body.transport_notes,
         event_layout: req?.file?.filename
-          ? process.env.APP_URL + "/uploads/" + req.file?.filename
+          ? process.env.APP_URL + "/upload/" + req.file?.filename
           : null,
         foto_groom: req.body.foto_groom,
         foto_groom_note: req.body.foto_groom_note,
@@ -259,7 +259,7 @@ export const update = async (req: Request, res: Response) => {
         transport_platenr: req.body.transport_platenr,
         transport_notes: req.body.transport_notes,
         event_layout: req?.file?.filename
-          ? process.env.APP_URL + "/uploads/" + req.file?.filename
+          ? process.env.APP_URL + "/upload/" + req.file?.filename
           : null,
         foto_groom: req.body.foto_groom,
         foto_groom_note: req.body.foto_groom_note,

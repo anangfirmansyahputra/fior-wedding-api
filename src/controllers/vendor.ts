@@ -154,7 +154,7 @@ export const create = async (req: Request, res: Response) => {
         slug: req.body.slug,
         contact: req.body.contact,
         cover: req.file?.filename
-          ? process.env.APP_URL + "/uploads/" + req.file?.filename
+          ? process.env.APP_URL + "/upload/" + req.file?.filename
           : null,
       },
     });
@@ -235,7 +235,7 @@ export const update = async (req: Request, res: Response) => {
         slug: req.body.slug,
         contact: req.body.contact,
         cover: req.file?.filename
-          ? process.env.APP_URL + "/uploads/" + req.file?.filename
+          ? process.env.APP_URL + "/upload/" + req.file?.filename
           : null,
       },
     });

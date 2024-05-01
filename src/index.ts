@@ -25,9 +25,9 @@ export const prismaClient = new PrismaClient({});
 
 export const exclude = prismaExclude(prismaClient);
 
-app.get("/uploads/:filename", (req, res) => {
+app.get("/upload/:filename", (req, res) => {
   const fileName = req.params.filename;
-  res.sendFile(path.join(__dirname, "../uploads", fileName));
+  res.sendFile(path.join(__dirname, "../upload", fileName));
 });
 
 app.listen(process.env.APP_PORT, () => {
