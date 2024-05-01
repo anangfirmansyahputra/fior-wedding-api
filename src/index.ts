@@ -3,9 +3,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
 import { prismaExclude } from "prisma-exclude";
-import authMiddleware from "./middlewares/auth";
 import rootRouter from "./routes";
-import permissionRouter from "./routes/permission.router";
+import fs from "fs";
+import path from "path";
 
 dotenv.config();
 

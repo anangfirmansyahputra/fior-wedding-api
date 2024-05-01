@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { prismaClient } from "../../..";
 import { errorResponse } from "../../../exceptions/error";
+import multer from "multer";
 
 export const create = async (req: Request, res: Response) => {
   try {
@@ -18,7 +19,7 @@ export const create = async (req: Request, res: Response) => {
       });
     }
 
-    if (!req.body.file) {
+    if (!req.file) {
       return errorResponse({
         res,
         type: "invalid",
@@ -29,7 +30,7 @@ export const create = async (req: Request, res: Response) => {
     const attachment = await prismaClient.eventTimelineAttachment.create({
       data: {
         event_task_timeline_id: req.params.task_timeline_id,
-        filename: req.body.file,
+        filename: req.file.filename,
       },
     });
 
@@ -39,8 +40,7 @@ export const create = async (req: Request, res: Response) => {
       message: "Event task timeline attachment created successfully",
     });
   } catch (e: any) {
-    console.log(e);
-    return errorResponse({ res, type: "internal error" });
+    return errorResponse({ res, type: "internal error", message: e?.message });
   }
 };
 
@@ -146,7 +146,7 @@ export const update = async (req: Request, res: Response) => {
       });
     }
 
-    if (!req.body.file) {
+    if (!req.file) {
       return errorResponse({
         res,
         type: "invalid",
@@ -160,7 +160,7 @@ export const update = async (req: Request, res: Response) => {
         event_task_timeline_id: req.params.task_timeline_id,
       },
       data: {
-        filename: req.body.file,
+        filename: req.file.filename,
       },
     });
 

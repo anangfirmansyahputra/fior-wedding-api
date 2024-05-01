@@ -1,5 +1,6 @@
 import { Router } from "express";
 import authMiddleware from "../../../middlewares/auth";
+import { handleMulterError, upload } from "../../../lib/multer";
 import {
   create,
   find,
@@ -13,6 +14,8 @@ const eventTaskTimelineAttachment = Router();
 eventTaskTimelineAttachment.post(
   "/:event_id/task-timelines/:task_timeline_id/attachments",
   authMiddleware("create_event_task_timeline_attachment"),
+  upload.single("file"),
+  handleMulterError,
   create
 );
 eventTaskTimelineAttachment.get(
@@ -28,6 +31,8 @@ eventTaskTimelineAttachment.get(
 eventTaskTimelineAttachment.patch(
   "/:event_id/task-timelines/:task_timeline_id/attachments/:id",
   authMiddleware("update_event_task_timeline_attachment"),
+  upload.single("file"),
+  handleMulterError,
   update
 );
 eventTaskTimelineAttachment.delete(
