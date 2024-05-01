@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { Request, Response } from "express";
 import { ErrorCode, getErrorMessage } from "../lib/error-code";
 import { prismaClient } from "../index";
+import { errorResponse } from "../exceptions/error";
 
 export const create = async (req: Request, res: Response) => {
   try {
@@ -98,21 +99,18 @@ export const get = async (req: Request, res: Response) => {
       });
     }
 
-    const notes = await prismaClient.vendorNote.findMany({});
+    const notes = await prismaClient.vendorNote.findMany({
+      where: {
+        vendor_id: Number(req.params.id),
+      },
+    });
 
     return res.status(200).json({
       success: true,
       data: notes,
     });
   } catch (e: any) {
-    return res.status(500).json({
-      success: false,
-      errors: {
-        error_code: ErrorCode.INTERNAL_SERVER_ERROR,
-        error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
-        message: "Internal server error",
-      },
-    });
+    return errorResponse({ res, type: "internal error" });
   }
 };
 
@@ -142,13 +140,10 @@ export const find = async (req: Request, res: Response) => {
     });
 
     if (!note) {
-      return res.status(404).json({
-        success: false,
-        errors: {
-          error_code: ErrorCode.NOT_FOUND,
-          error_message: getErrorMessage(ErrorCode.NOT_FOUND),
-          message: "Vendor Note not found",
-        },
+      return errorResponse({
+        res,
+        type: "not found",
+        message: "Note not found",
       });
     }
 
@@ -157,14 +152,7 @@ export const find = async (req: Request, res: Response) => {
       data: note,
     });
   } catch (e: any) {
-    return res.status(500).json({
-      success: false,
-      errors: {
-        error_code: ErrorCode.INTERNAL_SERVER_ERROR,
-        error_message: getErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR),
-        message: "Internal server error",
-      },
-    });
+    return errorResponse({ res, type: "internal error" });
   }
 };
 
